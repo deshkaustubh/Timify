@@ -1,4 +1,4 @@
-package com.streamliners.chat
+package com.streamliners.timify.chat
 
 import android.app.Activity
 import android.content.Intent
@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import java.util.Locale
 
 @Composable
-fun ChatScreen(modifier: Modifier = Modifier) {
+fun VoiceToTextScreen(modifier: Modifier = Modifier) {
     val speechText = remember { mutableStateOf("Your speech will appear here.") }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == Activity.RESULT_OK) {
