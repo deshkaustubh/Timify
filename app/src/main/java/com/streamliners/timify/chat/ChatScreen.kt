@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
@@ -30,19 +31,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.ai.client.generativeai.type.asTextOrNull
+import com.streamliners.base.taskState.comp.whenLoaded
+import com.streamliners.base.taskState.value
 import com.streamliners.compose.android.comp.appBar.TitleBarScaffold
+import com.streamliners.timify.chat.comp.MessageCard
+import com.streamliners.timify.chat.comp.MessagesList
 
 @Composable
 fun ChatScreen(
     navController: NavController,
     viewModel: ChatViewModel
 ) {
-
-
-    val placeholderPrompt = ""
-    val placeholderResult = "Rusult Yaha aayega..."
-    var prompt by rememberSaveable { mutableStateOf(placeholderPrompt) }
-    var result by rememberSaveable { mutableStateOf(placeholderResult) }
+    var prompt by rememberSaveable { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
 
 
@@ -53,8 +53,8 @@ fun ChatScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .imePadding()
         ) {
-
 
             if (uiState is UiState.Loading) {
                 Column (
@@ -65,39 +65,18 @@ fun ChatScreen(
 
                 }
             } else {
-                val scrollState = rememberScrollState()
                 Column(
                     modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(scrollState),
+                        .weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    var textColor = MaterialTheme.colorScheme.onSurface
-                    if (uiState is UiState.Error) {
-                        textColor = MaterialTheme.colorScheme.error
-                        result = (uiState as UiState.Error).errorMessage
-                    } else if (uiState is UiState.Success) {
-                        textColor = MaterialTheme.colorScheme.onSurface
-                        result = (uiState as UiState.Success).outputText
-                    }
+                )   {
 
-                    viewModel.chatHistoryState.forEach { chat ->
-                        Text(
-                            text = chat.parts[0].asTextOrNull().toString(),
-                            textAlign = TextAlign.Start,
-                            color = textColor,
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(16.dp)
-                                .wrapContentSize()
-
-                        )
-                    }
+                   viewModel.data.whenLoaded {
+                       MessagesList(data = it)
+                   }
 
                 }
             }
-
-            Column {
                 Row(
                     modifier = Modifier
                         .padding(all = 8.dp)
@@ -107,7 +86,7 @@ fun ChatScreen(
                         label = { Text("Prompt") },
                         onValueChange = { prompt = it },
                         modifier = Modifier
-                            .weight(0.8f)
+                            .weight(1f)
                             .padding(end = 16.dp)
                             .align(Alignment.CenterVertically)
                     )
@@ -124,8 +103,6 @@ fun ChatScreen(
                         Text(text = "Go")
                     }
                 }
-            }
-
 
         }
 
