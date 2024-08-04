@@ -1,4 +1,4 @@
-package com.streamliners.timify.chat
+package com.streamliners.timify.feature.chat
 
 import android.app.Activity
 import android.content.Intent
