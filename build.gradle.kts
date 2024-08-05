@@ -3,4 +3,4 @@ plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.kotlinAndroid) apply false
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin) apply false
-}
+    id("com.google.devtools.ksp") version "2.0.0-1.0.23"}

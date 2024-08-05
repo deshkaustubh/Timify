@@ -1,4 +1,4 @@
-package com.streamliners.timify.chat
+package com.streamliners.timify.feature.chat
 
 /**
  * A sealed hierarchy describing the state of the text generation.
