@@ -1,4 +1,4 @@
-package com.streamliners.timify.chat.comp
+package com.streamliners.timify.feature.chat.comp
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

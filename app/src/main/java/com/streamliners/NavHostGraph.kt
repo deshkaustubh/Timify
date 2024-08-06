@@ -6,8 +6,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.streamliners.base.ext.koinBaseViewModel
 import com.streamliners.timify.MainActivity
-import com.streamliners.timify.chat.ChatScreen
-import com.streamliners.timify.chat.VoiceToTextScreen
+import com.streamliners.timify.feature.chat.ChatScreen
+import com.streamliners.timify.feature.chat.VoiceToTextScreen
 
 @Composable
 fun MainActivity.NavHostGraph(

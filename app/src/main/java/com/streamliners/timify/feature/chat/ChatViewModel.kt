@@ -1,23 +1,33 @@
-package com.streamliners.timify.chat
+package com.streamliners.timify.feature.chat
 
 import com.streamliners.base.BaseViewModel
 
 import androidx.lifecycle.viewModelScope
+import com.google.ai.client.generativeai.Chat
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.Content
+import com.google.ai.client.generativeai.type.Part
+import com.google.ai.client.generativeai.type.TextPart
 import com.google.ai.client.generativeai.type.content
 import com.google.ai.client.generativeai.type.generationConfig
+import com.streamliners.base.ext.execute
 import com.streamliners.base.taskState.taskStateOf
 import com.streamliners.base.taskState.update
 import com.streamliners.timify.BuildConfig
+import com.streamliners.timify.TimifyApp
+import com.streamliners.timify.data.local.ChatHistoryDao
+import com.streamliners.timify.domain.ChatHistory
+import com.streamliners.timify.feature.chat.ChatViewModel.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Date
 
-class ChatViewModel : BaseViewModel() {
+class ChatViewModel() : BaseViewModel() {
 
+    val chatHistoryDao = TimifyApp.chatHistoryDB.chatHistoryDao()
 
     sealed class ContentListItem {
         class ModelMessage(
@@ -39,7 +49,7 @@ class ChatViewModel : BaseViewModel() {
     val uiState: StateFlow<UiState> =
         _uiState.asStateFlow()
 
-    val chatHistoryState = mutableListOf<Content>()
+    var chatHistoryState = mutableListOf<Content>()
 
     val data = taskStateOf<Data>()
 
@@ -60,32 +70,49 @@ class ChatViewModel : BaseViewModel() {
         },
     )
 
+    lateinit var chat:Chat
+
+    fun start(){
+        execute {
+            chatHistoryState = getPreviousChatFromRoomDb()
+            chat = generativeModel.startChat(chatHistoryState)
+            data.update(
+                Data(contentListItems = createContentListItem(chat.history)
+                )
+            )
+        }
+    }
+
+
     fun sendPrompt(
         prompt: String
     ) {
         _uiState.value = UiState.Loading
 
-
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val response = generativeModel.startChat(chatHistoryState).sendMessage(prompt)
+                val response = chat.sendMessage(prompt)
 
-                chatHistoryState.add(
-                    content("user") {
-                        text(prompt)
-                    }
+                chatHistoryDao.addChat(
+                    ChatHistory(
+                        date = Date().time,
+                        role = "user",
+                        message = prompt
+                    )
                 )
 
                 response.text?.let { outputContent ->
-                    chatHistoryState.add(
-                        content("model") {
-                            text(outputContent)
-                        }
+
+                    chatHistoryDao.addChat(
+                        ChatHistory(
+                            date = Date().time,
+                            role = "model",
+                            message = outputContent
+                        )
                     )
 
                     data.update(
-                        Data(
-                            contentListItems = createContentListItem(chatHistoryState)
+                        Data(contentListItems = createContentListItem(chat.history)
                         )
                     )
 
@@ -98,6 +125,22 @@ class ChatViewModel : BaseViewModel() {
         }
     }
 
+    private suspend fun getPreviousChatFromRoomDb(): MutableList<Content> {
+
+        val contentList = mutableListOf<Content>()
+        val chatFromRoomDb = chatHistoryDao.getAllChats()
+        chatFromRoomDb.forEach {
+
+            contentList.add(
+                content(role = it.role) {
+                    text(it.message)
+                }
+            )
+
+        }
+
+        return contentList
+    }
 
 
     private fun createContentListItem(chatHistoryState: MutableList<Content>): List<ContentListItem> {
@@ -122,6 +165,8 @@ class ChatViewModel : BaseViewModel() {
 
         }
         return contentListItem
-
     }
 }
+
+
+

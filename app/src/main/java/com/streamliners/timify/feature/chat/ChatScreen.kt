@@ -1,4 +1,4 @@
-package com.streamliners.timify.chat
+package com.streamliners.timify.feature.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,8 +35,8 @@ import com.google.ai.client.generativeai.type.asTextOrNull
 import com.streamliners.base.taskState.comp.whenLoaded
 import com.streamliners.base.taskState.value
 import com.streamliners.compose.android.comp.appBar.TitleBarScaffold
-import com.streamliners.timify.chat.comp.MessageCard
-import com.streamliners.timify.chat.comp.MessagesList
+import com.streamliners.timify.feature.chat.comp.MessageCard
+import com.streamliners.timify.feature.chat.comp.MessagesList
 
 @Composable
 fun ChatScreen(
@@ -44,6 +45,10 @@ fun ChatScreen(
 ) {
     var prompt by rememberSaveable { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.start()
+    }
 
 
     TitleBarScaffold(

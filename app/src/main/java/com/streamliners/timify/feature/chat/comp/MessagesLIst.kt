@@ -1,4 +1,4 @@
-package com.streamliners.timify.chat.comp
+package com.streamliners.timify.feature.chat.comp
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,8 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.google.ai.client.generativeai.type.asTextOrNull
-import com.streamliners.timify.chat.ChatViewModel
-import com.streamliners.timify.chat.ChatViewModel.ContentListItem
+import com.streamliners.timify.feature.chat.ChatViewModel
+import com.streamliners.timify.feature.chat.ChatViewModel.ContentListItem
 
 @Composable
 fun MessagesList(
