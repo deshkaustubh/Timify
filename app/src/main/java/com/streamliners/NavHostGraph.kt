@@ -8,6 +8,7 @@ import com.streamliners.base.ext.koinBaseViewModel
 import com.streamliners.timify.MainActivity
 import com.streamliners.timify.feature.chat.ChatScreen
 import com.streamliners.timify.feature.chat.VoiceToTextScreen
+import com.streamliners.timify.feature.pieChart.PieChartScreen
 
 @Composable
 fun MainActivity.NavHostGraph(
@@ -24,6 +25,12 @@ fun MainActivity.NavHostGraph(
                 navController = navController,
                 viewModel = koinBaseViewModel()
             )
+        }
+
+        composable("PieChartScreen"){
+            PieChartScreen(
+                navController = navController,
+                viewModel = koinBaseViewModel())
         }
     }
 

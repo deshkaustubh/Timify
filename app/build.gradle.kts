@@ -114,5 +114,7 @@ dependencies {
     annotationProcessor("androidx.room:room-compiler:$room_version")
     kapt("androidx.room:room-compiler:$room_version")
 
+    // Pie Chart
+    implementation("ir.mahozad.android:pie-chart:0.7.0")
 
 }

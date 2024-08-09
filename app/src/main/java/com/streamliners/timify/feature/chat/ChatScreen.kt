@@ -11,8 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -53,7 +57,15 @@ fun ChatScreen(
 
     TitleBarScaffold(
         title = "Timify",
-        navigateUp = { navController.navigateUp() }) { innerPadding ->
+        navigateUp = { navController.navigateUp() },
+        actions = {
+            IconButton(onClick = {
+                navController.navigate("PieChartScreen")
+            }) {
+                Icon(imageVector = Icons.Default.Search, contentDescription = "Analysis")
+            }
+        }
+        ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
