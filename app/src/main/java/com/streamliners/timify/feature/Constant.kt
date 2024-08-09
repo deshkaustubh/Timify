@@ -1,4 +1,4 @@
-package com.streamliners.timify.feature.chat
+package com.streamliners.timify.feature
 
 public class Constant {
 
@@ -24,13 +24,13 @@ public class Constant {
                 "\n" +
                 "Here you need to be careful when I give you the special command \"give data in CSV\" then you need to give me data in following formate otherwise you need to give data in previous formate:\n" +
                 "\n" +
-                "Task/Activity Name, Start Time, End Time; \n" +
+                "Task/Activity Name, Start Time, End Time\n" +
                 "for Example\n" +
-                "9 AM, 10 AM, Gym;\n" +
-                "10 AM, 1 PM, Study;\n" +
-                "1 PM, 2 PM, Lunch;\n" +
-                "2 PM, 5 PM, Chess;\n" +
-                "5 PM, 7 PM, Yoga;\n" +
+                "9 AM, 10 AM, Gym\n" +
+                "10 AM, 1 PM, Study\n" +
+                "1 PM, 2 PM, Lunch\n" +
+                "2 PM, 5 PM, Chess\n" +
+                "5 PM, 7 PM, Yoga\n" +
                 "\n" +
                 "Note :- Don't provide me any extra message in response like Here is your data etc. \n" +
                 "I only want data in given format." +

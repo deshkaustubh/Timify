@@ -6,7 +6,7 @@ import com.streamliners.timify.domain.ChatHistory
 import com.streamliners.timify.domain.PieChartInfo
 
 
-@Database(entities = [ChatHistory::class, PieChartInfo::class], version = 4)
+@Database(entities = [ChatHistory::class, PieChartInfo::class], version = 5)
 abstract class LocalDB : RoomDatabase(){
 
     companion object {

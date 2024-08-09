@@ -1,5 +1,6 @@
 package com.streamliners.timify.feature.chat
 
+import android.util.Log
 import com.streamliners.base.BaseViewModel
 
 import androidx.lifecycle.viewModelScope
@@ -14,6 +15,8 @@ import com.streamliners.base.taskState.update
 import com.streamliners.timify.BuildConfig
 import com.streamliners.timify.TimifyApp
 import com.streamliners.timify.domain.ChatHistory
+import com.streamliners.timify.domain.PieChartInfo
+import com.streamliners.timify.feature.Constant
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,12 +25,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Date
 
 class ChatViewModel : BaseViewModel() {
 
     val chatHistoryDao = TimifyApp.localDB.chatHistoryDao()
-    //val pieChartInfoDao = TimifyApp.localDB.pieChartInfoDao()
+    val pieChartInfoDao = TimifyApp.localDB.pieChartInfoDao()
 
     val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
@@ -88,12 +90,6 @@ class ChatViewModel : BaseViewModel() {
     }
 
 
-   /* private fun getPieChartInfoList(prompt: String): List<PieChartInfo> {
-
-
-
-    }*/
-
     fun sendPrompt(
         prompt: String
     ) {
@@ -133,6 +129,33 @@ class ChatViewModel : BaseViewModel() {
             } catch (e: Exception) {
                 _uiState.value = UiState.Error(e.localizedMessage ?: "")
             }
+        }
+    }
+
+
+    fun savePieChartInfoToRoom(){
+        execute {
+
+                val response = chat.sendMessage("give data in csv")
+                response.text?.let { outputContent ->
+
+                    val arrayOfInfo = outputContent.split("\n").dropLast(1)
+
+                    pieChartInfoDao.deletePieChartInfo()
+
+                    arrayOfInfo.forEach { taskInfos ->
+                        val array = taskInfos.split(",")
+
+                            pieChartInfoDao.addPieChartInfo(
+                                PieChartInfo(
+                                    taskName = array[0],
+                                    startTime = array[1],
+                                    endTime = array[2],
+                                    date = currentDate
+                                )
+                            )
+                    }
+                }
         }
     }
 

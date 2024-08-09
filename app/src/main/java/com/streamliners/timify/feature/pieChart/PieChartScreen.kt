@@ -21,7 +21,9 @@ fun PieChartScreen(
 ) {
     //val context = LocalContext.current
 
-    TitleBarScaffold(title = "Pie Chart") { it   ->
+    TitleBarScaffold(
+        title = "Pie Chart",
+        navigateUp = {navController.navigateUp()}) { it   ->
         AndroidView(
             modifier = Modifier.fillMaxSize().padding(it)
                 .padding(24.dp),

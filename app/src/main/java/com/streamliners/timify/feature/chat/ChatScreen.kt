@@ -60,7 +60,10 @@ fun ChatScreen(
         navigateUp = { navController.navigateUp() },
         actions = {
             IconButton(onClick = {
+
+                viewModel.savePieChartInfoToRoom()
                 navController.navigate("PieChartScreen")
+
             }) {
                 Icon(imageVector = Icons.Default.Search, contentDescription = "Analysis")
             }
