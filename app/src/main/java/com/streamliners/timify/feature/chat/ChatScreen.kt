@@ -98,6 +98,7 @@ fun ChatScreen(
                     modifier = Modifier
                         .padding(all = 8.dp)
                 ) {
+
                     TextField(
                         value = prompt,
                         label = { Text("Prompt") },

@@ -6,8 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.ai.client.generativeai.Chat
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.Content
-import com.google.ai.client.generativeai.type.Part
-import com.google.ai.client.generativeai.type.TextPart
 import com.google.ai.client.generativeai.type.content
 import com.google.ai.client.generativeai.type.generationConfig
 import com.streamliners.base.ext.execute
@@ -15,19 +13,25 @@ import com.streamliners.base.taskState.taskStateOf
 import com.streamliners.base.taskState.update
 import com.streamliners.timify.BuildConfig
 import com.streamliners.timify.TimifyApp
-import com.streamliners.timify.data.local.ChatHistoryDao
 import com.streamliners.timify.domain.ChatHistory
-import com.streamliners.timify.feature.chat.ChatViewModel.*
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
 
-class ChatViewModel() : BaseViewModel() {
+class ChatViewModel : BaseViewModel() {
 
-    val chatHistoryDao = TimifyApp.chatHistoryDB.chatHistoryDao()
+    val chatHistoryDao = TimifyApp.localDB.chatHistoryDao()
+    //val pieChartInfoDao = TimifyApp.localDB.pieChartInfoDao()
+
+    val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+
+    val currentDate = LocalDateTime.now().format(formatter)
 
     sealed class ContentListItem {
         class ModelMessage(
@@ -84,6 +88,12 @@ class ChatViewModel() : BaseViewModel() {
     }
 
 
+   /* private fun getPieChartInfoList(prompt: String): List<PieChartInfo> {
+
+
+
+    }*/
+
     fun sendPrompt(
         prompt: String
     ) {
@@ -93,19 +103,20 @@ class ChatViewModel() : BaseViewModel() {
             try {
                 val response = chat.sendMessage(prompt)
 
-                chatHistoryDao.addChat(
-                    ChatHistory(
-                        date = Date().time,
-                        role = "user",
-                        message = prompt
+                    chatHistoryDao.addChat(
+                        ChatHistory(
+                            date = currentDate,
+                            role = "user",
+                            message = prompt
+                        )
                     )
-                )
+
 
                 response.text?.let { outputContent ->
 
                     chatHistoryDao.addChat(
                         ChatHistory(
-                            date = Date().time,
+                            date = currentDate,
                             role = "model",
                             message = outputContent
                         )
@@ -128,7 +139,7 @@ class ChatViewModel() : BaseViewModel() {
     private suspend fun getPreviousChatFromRoomDb(): MutableList<Content> {
 
         val contentList = mutableListOf<Content>()
-        val chatFromRoomDb = chatHistoryDao.getAllChats()
+        val chatFromRoomDb = chatHistoryDao.getAllChats(currentDate)
         chatFromRoomDb.forEach {
 
             contentList.add(

@@ -2,7 +2,7 @@ package com.streamliners.timify
 
 import android.app.Application
 import androidx.room.Room
-import com.streamliners.timify.data.local.ChatHistoryDB
+import com.streamliners.timify.data.local.LocalDB
 import com.streamliners.timify.di.appModule
 import com.streamliners.timify.di.viewModelModule
 import org.koin.android.ext.koin.androidContext
@@ -12,7 +12,7 @@ import org.koin.core.context.startKoin
 class TimifyApp: Application() {
 
     companion object {
-        lateinit var chatHistoryDB: ChatHistoryDB
+        lateinit var localDB: LocalDB
     }
 
     override fun onCreate() {
@@ -24,10 +24,10 @@ class TimifyApp: Application() {
             modules(appModule, viewModelModule)
         }
 
-        chatHistoryDB = Room.databaseBuilder(
+        localDB = Room.databaseBuilder(
             applicationContext,
-            ChatHistoryDB::class.java,
-            ChatHistoryDB.NAME
+            LocalDB::class.java,
+            LocalDB.NAME
         ).build()
 
     }

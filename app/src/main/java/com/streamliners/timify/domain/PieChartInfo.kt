@@ -5,13 +5,17 @@ import androidx.room.PrimaryKey
 
 
 @Entity
-data class ChatHistory(
+data class PieChartInfo(
+
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 
     val date: String,
 
-    val role: String? = "user",
+    val startTime: String,
 
-    val message: String
+    val endTime: String,
+
+    val taskName: String
+
 )
