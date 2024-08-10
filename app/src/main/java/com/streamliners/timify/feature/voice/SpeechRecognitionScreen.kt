@@ -1,10 +1,11 @@
-package com.streamliners.timify.chat
+package com.streamliners.timify.feature.voice
 
 import android.app.Activity
 import android.content.Intent
 import android.speech.RecognizerIntent
+import android.speech.RecognizerIntent.*
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -21,9 +22,12 @@ import androidx.compose.ui.unit.dp
 import java.util.Locale
 
 @Composable
-fun VoiceToTextScreen(modifier: Modifier = Modifier) {
-    val speechText = remember { mutableStateOf("Your speech will appear here.") }
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+fun SpeechRecognitionScreen(modifier: Modifier = Modifier) {
+    val speechText = remember {
+        mutableStateOf("Your speech will appear here.")
+    }
+
+    val launcher = rememberLauncherForActivityResult(StartActivityForResult()) {
         if (it.resultCode == Activity.RESULT_OK) {
             val data = it.data
             val result = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
@@ -32,21 +36,29 @@ fun VoiceToTextScreen(modifier: Modifier = Modifier) {
             speechText.value = "[Speech recognition failed.]"
         }
     }
-    Column(modifier = modifier
-        .fillMaxSize(),
+
+    Column(
+        modifier = modifier
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Button(onClick = {
-            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
-            intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Go on then, say something.")
-            launcher.launch(intent)
-        }) {
+        Button(
+            onClick = {
+                launcher.launch(
+                    Intent(ACTION_RECOGNIZE_SPEECH).apply {
+                        putExtra(EXTRA_LANGUAGE_MODEL, LANGUAGE_MODEL_FREE_FORM)
+                        putExtra(EXTRA_LANGUAGE, Locale.getDefault())
+                        putExtra(EXTRA_PROMPT, "Go on then, say something.")
+                    }
+                )
+            }
+        ) {
             Text("Start speech recognition")
         }
+
         Spacer(modifier = Modifier.padding(16.dp))
+
         Text(speechText.value)
     }
 }

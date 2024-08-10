@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+    //id("com.google.devtools.ksp")
+    id("kotlin-kapt")
 }
 
 
@@ -103,5 +105,16 @@ dependencies {
 
     // Gson
     implementation(libs.gson)
+
+    // Room
+    val room_version = "2.6.1"
+
+    implementation("androidx.room:room-runtime:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+    annotationProcessor("androidx.room:room-compiler:$room_version")
+    kapt("androidx.room:room-compiler:$room_version")
+
+    // Pie Chart
+    implementation("ir.mahozad.android:pie-chart:0.7.0")
 
 }
