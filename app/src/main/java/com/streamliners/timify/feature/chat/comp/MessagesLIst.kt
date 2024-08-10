@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.google.ai.client.generativeai.type.asTextOrNull
 import com.streamliners.timify.feature.chat.ChatViewModel
-import com.streamliners.timify.feature.chat.ChatViewModel.ContentListItem
+import com.streamliners.timify.feature.chat.ChatViewModel.ChatListItem
 
 @Composable
 fun MessagesList(
@@ -25,31 +25,28 @@ fun MessagesList(
         contentPadding = PaddingValues(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(data.contentListItems) { contentListItem ->
+        items(data.chatListItems) { contentListItem ->
 
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = when (contentListItem) {
-                    is ContentListItem.UserMessage -> Alignment.CenterEnd
-                    is ContentListItem.ModelMessage -> Alignment.CenterStart
+                    is ChatListItem.UserMessage -> Alignment.CenterEnd
+                    is ChatListItem.ModelMessage -> Alignment.CenterStart
                 }
             ) {
                 when (contentListItem) {
 
-                    is ContentListItem.ModelMessage -> {
+                    is ChatListItem.ModelMessage -> {
                         MessageCard(
                             message = contentListItem.modelContent.parts.first().asTextOrNull().toString(),
 
                         )
                     }
-                    is ContentListItem.UserMessage -> {
+                    is ChatListItem.UserMessage -> {
                         MessageCard(message = contentListItem.userContent.parts.first().asTextOrNull().toString())
                     }
                 }
-
             }
-
         }
     }
-
 }

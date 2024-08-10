@@ -1,19 +1,26 @@
 package com.streamliners.timify.data.local
 
+import android.content.Context
 import androidx.room.Database
+import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.streamliners.timify.domain.ChatHistory
-import com.streamliners.timify.domain.PieChartInfo
+import com.streamliners.timify.domain.ChatHistoryItem
+import com.streamliners.timify.domain.TaskInfo
 
-
-@Database(entities = [ChatHistory::class, PieChartInfo::class], version = 5)
+@Database(entities = [ChatHistoryItem::class, TaskInfo::class], version = 5)
 abstract class LocalDB : RoomDatabase(){
 
     companion object {
-        const val NAME = "room_DB"
+        fun create(context: Context): LocalDB {
+            return Room.databaseBuilder(
+                context = context,
+                klass = LocalDB::class.java,
+                name = "roomDB"
+            ).build()
+        }
     }
 
     abstract fun chatHistoryDao(): ChatHistoryDao
 
-    abstract fun pieChartInfoDao(): PieChartInfoDao
+    abstract fun taskInfoDao(): TaskInfoDao
 }

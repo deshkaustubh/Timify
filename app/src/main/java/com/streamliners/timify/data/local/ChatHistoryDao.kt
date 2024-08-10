@@ -3,15 +3,15 @@ package com.streamliners.timify.data.local
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.streamliners.timify.domain.ChatHistory
+import com.streamliners.timify.domain.ChatHistoryItem
 
 @Dao
 interface ChatHistoryDao {
 
-    @Query("SELECT * FROM CHATHISTORY WHERE DATE = :date")
-    suspend fun getAllChats(date: String): List<ChatHistory>
+    @Query("SELECT * FROM ChatHistory WHERE date = :date")
+    suspend fun getList(date: String): List<ChatHistoryItem>
 
     @Insert
-    suspend fun addChat(chatHistory: ChatHistory)
+    suspend fun add(chatHistoryItem: ChatHistoryItem)
 
 }

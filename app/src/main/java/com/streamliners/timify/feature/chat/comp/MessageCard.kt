@@ -21,10 +21,7 @@ fun MessageCard(
     message: String,
 
 ) {
-
-    Row(
-    ){
-
+    Row {
         Card(
             modifier = Modifier.fillMaxWidth(0.8f)
         ) {
@@ -48,14 +45,8 @@ fun MessageCard(
                         color = Color.Black,
                         modifier = Modifier.weight(0.5f)
                     )
-
                 }
             }
-
-
         }
     }
-
-
-
 }

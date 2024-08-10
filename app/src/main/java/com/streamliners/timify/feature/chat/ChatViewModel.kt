@@ -1,206 +1,123 @@
 package com.streamliners.timify.feature.chat
 
-import android.util.Log
 import com.streamliners.base.BaseViewModel
 
-import androidx.lifecycle.viewModelScope
 import com.google.ai.client.generativeai.Chat
-import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.Content
 import com.google.ai.client.generativeai.type.content
-import com.google.ai.client.generativeai.type.generationConfig
 import com.streamliners.base.ext.execute
 import com.streamliners.base.taskState.taskStateOf
 import com.streamliners.base.taskState.update
-import com.streamliners.timify.BuildConfig
-import com.streamliners.timify.TimifyApp
-import com.streamliners.timify.domain.ChatHistory
-import com.streamliners.timify.domain.PieChartInfo
-import com.streamliners.timify.feature.Constant
+import com.streamliners.timify.data.local.ChatHistoryDao
+import com.streamliners.timify.data.local.TaskInfoDao
+import com.streamliners.timify.domain.ChatHistoryItem
+import com.streamliners.timify.domain.TaskInfo
+import com.streamliners.timify.feature.genAI.GeminiModel
+import com.streamliners.timify.other.ext.send
+import com.streamliners.utils.DateTimeUtils.Format.Companion.DATE_MONTH_YEAR_1
+import com.streamliners.utils.DateTimeUtils.formatTime
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+class ChatViewModel(
+    private val chatHistoryDao: ChatHistoryDao,
+    private val taskInfoDao: TaskInfoDao
+) : BaseViewModel() {
 
-class ChatViewModel : BaseViewModel() {
-
-    val chatHistoryDao = TimifyApp.localDB.chatHistoryDao()
-    val pieChartInfoDao = TimifyApp.localDB.pieChartInfoDao()
-
-    val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-
-    val currentDate = LocalDateTime.now().format(formatter)
-
-    sealed class ContentListItem {
+    sealed class ChatListItem {
         class ModelMessage(
             val modelContent: Content
-        ) : ContentListItem()
-
+        ) : ChatListItem()
 
         class UserMessage(
             val userContent: Content
-        ) : ContentListItem()
+        ) : ChatListItem()
     }
 
     class Data(
-        val contentListItems: List<ContentListItem>
+        val chatListItems: List<ChatListItem>
     )
 
-    private val _uiState: MutableStateFlow<UiState> =
-        MutableStateFlow(UiState.Initial)
-    val uiState: StateFlow<UiState> =
-        _uiState.asStateFlow()
-
-    var chatHistoryState = mutableListOf<Content>()
+    private val generativeModel = GeminiModel.get()
 
     val data = taskStateOf<Data>()
+    private val currentDate = formatTime(DATE_MONTH_YEAR_1)
+    private lateinit var chat: Chat
 
-    private val generativeModel = GenerativeModel(
-        "gemini-1.5-flash",
-        BuildConfig.apiKey,
-        generationConfig = generationConfig {
-            temperature = 1f
-            topK = 64
-            topP = 0.95f
-            maxOutputTokens = 8192
-            responseMimeType = "text/plain"
-        },
-        systemInstruction = content {
-            text(
-                Constant.SYSTEM_INSTRUCTION
-            )
-        },
-    )
-
-    lateinit var chat:Chat
-
-    fun start(){
+    fun start() {
         execute {
-            chatHistoryState = getPreviousChatFromRoomDb()
-            chat = generativeModel.startChat(chatHistoryState)
+            val chatHistory = chatHistoryDao.getList(currentDate).toContentList()
+            chat = generativeModel.startChat(chatHistory)
             data.update(
-                Data(contentListItems = createContentListItem(chat.history)
-                )
+                Data(chat.history.toChatListItems())
             )
         }
     }
 
-
-    fun sendPrompt(
-        prompt: String
-    ) {
-        _uiState.value = UiState.Loading
-
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val response = chat.sendMessage(prompt)
-
-                    chatHistoryDao.addChat(
-                        ChatHistory(
-                            date = currentDate,
-                            role = "user",
-                            message = prompt
-                        )
-                    )
-
-
-                response.text?.let { outputContent ->
-
-                    chatHistoryDao.addChat(
-                        ChatHistory(
-                            date = currentDate,
-                            role = "model",
-                            message = outputContent
-                        )
-                    )
-
-                    data.update(
-                        Data(contentListItems = createContentListItem(chat.history)
-                        )
-                    )
-
-                    _uiState.value = UiState.Success(outputContent)
-                }
-
-            } catch (e: Exception) {
-                _uiState.value = UiState.Error(e.localizedMessage ?: "")
-            }
-        }
-    }
-
-
-    fun savePieChartInfoToRoom(){
+    fun sendPrompt(prompt: String, onSuccess: () -> Unit) {
         execute {
+            val response = chat.send(prompt)
 
-                val response = chat.sendMessage("give data in csv")
-                response.text?.let { outputContent ->
-
-                    val arrayOfInfo = outputContent.split("\n").dropLast(1)
-
-                    pieChartInfoDao.deletePieChartInfo()
-
-                    arrayOfInfo.forEach { taskInfos ->
-                        val array = taskInfos.split(",")
-
-                            pieChartInfoDao.addPieChartInfo(
-                                PieChartInfo(
-                                    taskName = array[0],
-                                    startTime = array[1],
-                                    endTime = array[2],
-                                    date = currentDate
-                                )
-                            )
-                    }
-                }
-        }
-    }
-
-    private suspend fun getPreviousChatFromRoomDb(): MutableList<Content> {
-
-        val contentList = mutableListOf<Content>()
-        val chatFromRoomDb = chatHistoryDao.getAllChats(currentDate)
-        chatFromRoomDb.forEach {
-
-            contentList.add(
-                content(role = it.role) {
-                    text(it.message)
-                }
+            chatHistoryDao.add(
+                ChatHistoryItem(
+                    date = currentDate,
+                    role = "user",
+                    message = prompt
+                )
             )
 
-        }
+            chatHistoryDao.add(
+                ChatHistoryItem(
+                    date = currentDate,
+                    role = "model",
+                    message = response
+                )
+            )
 
-        return contentList
+            data.update(
+                Data(chat.history.toChatListItems())
+            )
+
+            onSuccess()
+        }
     }
 
+    fun savePieChartInfoToRoom() {
+        execute {
+            val response = chat.send("give data in csv")
 
-    private fun createContentListItem(chatHistoryState: MutableList<Content>): List<ContentListItem> {
+            val lines = response.split("\n").dropLast(1)
 
-        val contentListItem = mutableListOf<ContentListItem>()
+            taskInfoDao.clear()
 
-        chatHistoryState.forEach {
-            if (it.role == "user") {
-                contentListItem.add(
-                    ContentListItem.UserMessage(
-                        userContent = it
+            lines.forEach { line ->
+                val data = line.split(",")
+
+                taskInfoDao.add(
+                    TaskInfo(
+                        name = data[0],
+                        startTime = data[1],
+                        endTime = data[2],
+                        date = currentDate
                     )
                 )
-            } else {
-                contentListItem.add(
-                    ContentListItem.ModelMessage(
-                        modelContent = it
-                    )
-                )
-
             }
-
         }
-        return contentListItem
+    }
+
+    private fun List<ChatHistoryItem>.toContentList(): MutableList<Content> {
+        return map { item ->
+            content(role = item.role) {
+                text(item.message)
+            }
+        }.toMutableList()
+    }
+
+    private fun List<Content>.toChatListItems(): List<ChatListItem> {
+        return map { content ->
+            if (content.role == "user") {
+                ChatListItem.UserMessage(content)
+            } else {
+                ChatListItem.ModelMessage(content)
+            }
+        }
     }
 }
-
-
-

@@ -1,13 +1,13 @@
 package com.streamliners.timify.feature.pieChart
 
-import android.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.streamliners.base.BaseViewModel
 import com.streamliners.base.ext.execute
 import com.streamliners.base.taskState.taskStateOf
 import com.streamliners.base.taskState.update
 import com.streamliners.timify.TimifyApp
-import com.streamliners.timify.domain.PieChartInfo
+import com.streamliners.timify.data.local.TaskInfoDao
+import com.streamliners.timify.domain.TaskInfo
 import com.streamliners.timify.ui.theme.listOfColor
 import ir.mahozad.android.PieChart
 import java.text.SimpleDateFormat
@@ -15,22 +15,22 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-class PieChartViewModel : BaseViewModel() {
-
-    val pieChartInfoDao = TimifyApp.localDB.pieChartInfoDao()
+class PieChartViewModel(
+    private val taskInfoDao: TaskInfoDao
+) : BaseViewModel() {
 
     val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
     val currentDate = LocalDateTime.now().format(formatter)
 
     // TODO: Why it is in var
-    var listOfPieChartInfo = mutableListOf<PieChartInfo>()
+    var listOfTaskInfo = mutableListOf<TaskInfo>()
     val slice = taskStateOf<List<PieChart.Slice>>()
 
     fun getPieChartData() {
 
         execute {
-            listOfPieChartInfo = pieChartInfoDao.getPieChartInfo(currentDate).toMutableList()
+            listOfTaskInfo = this@PieChartViewModel.taskInfoDao.getList(currentDate).toMutableList()
             setDate()
         }
 
@@ -65,19 +65,19 @@ class PieChartViewModel : BaseViewModel() {
         execute {
             val list = mutableListOf<PieChart.Slice>()
             val totalHours = mutableListOf<Int>()
-            listOfPieChartInfo.forEach {
+            listOfTaskInfo.forEach {
                 totalHours.add(
                     calculateTimeDifference(it.startTime, it.endTime)
                 )
             }
 
             // TODO: Color needs to be different instead random
-            listOfPieChartInfo.forEach {
+            listOfTaskInfo.forEach {
                     list.add(
                         PieChart.Slice(
                             fraction = fraction(it.startTime, it.endTime, totalHours.sum()),
                             color = listOfColor.random().toArgb(),
-                            label = it.taskName
+                            label = it.name
                         )
                     )
             }

@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.streamliners.base.BaseActivity
 import com.streamliners.base.uiEvent.UiEventDialogs
+import com.streamliners.timify.BuildConfig
 import com.streamliners.timify.ui.theme.TimifyTheme
 
 class MainActivity : BaseActivity()  {
@@ -19,17 +20,16 @@ class MainActivity : BaseActivity()  {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             TimifyTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-
                     val navController = rememberNavController()
                     NavHostGraph(navController)
                     UiEventDialogs()
-
                 }
             }
         }

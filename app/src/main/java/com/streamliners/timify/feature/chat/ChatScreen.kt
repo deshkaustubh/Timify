@@ -48,27 +48,26 @@ fun ChatScreen(
     viewModel: ChatViewModel
 ) {
     var prompt by rememberSaveable { mutableStateOf("") }
-    val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(key1 = Unit) {
         viewModel.start()
     }
 
-
     TitleBarScaffold(
         title = "Timify",
         navigateUp = { navController.navigateUp() },
         actions = {
-            IconButton(onClick = {
-
-                viewModel.savePieChartInfoToRoom()
-                navController.navigate("PieChartScreen")
-
-            }) {
+            IconButton(
+                onClick = {
+                    viewModel.savePieChartInfoToRoom()
+                    navController.navigate("PieChartScreen")
+                }
+            ) {
                 Icon(imageVector = Icons.Default.Search, contentDescription = "Analysis")
             }
         }
-        ) { innerPadding ->
+    ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -76,59 +75,44 @@ fun ChatScreen(
                 .imePadding()
         ) {
 
-            if (uiState is UiState.Loading) {
-                Column (
-                    Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center
-                ){
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            Column(
+                modifier = Modifier
+                    .weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-                }
-            } else {
-                Column(
-                    modifier = Modifier
-                        .weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                )   {
-
-                   viewModel.data.whenLoaded {
-                       MessagesList(data = it)
-                   }
-
+                viewModel.data.whenLoaded { data ->
+                    MessagesList(data)
                 }
             }
-                Row(
+
+            Row(
+                modifier = Modifier
+                    .padding(all = 8.dp)
+            ) {
+
+                TextField(
                     modifier = Modifier
-                        .padding(all = 8.dp)
-                ) {
+                        .weight(1f)
+                        .padding(end = 16.dp)
+                        .align(Alignment.CenterVertically),
+                    value = prompt,
+                    label = { Text("Prompt") },
+                    onValueChange = { prompt = it }
+                )
 
-                    TextField(
-                        value = prompt,
-                        label = { Text("Prompt") },
-                        onValueChange = { prompt = it },
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(end = 16.dp)
-                            .align(Alignment.CenterVertically)
-                    )
-
-                    Button(
-                        onClick = {
-                            viewModel.sendPrompt(prompt)
+                Button(
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    enabled = prompt.isNotEmpty(),
+                    onClick = {
+                        viewModel.sendPrompt(prompt) {
                             prompt = ""
-                        },
-                        enabled = prompt.isNotEmpty(),
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                    ) {
-                        Text(text = "Go")
+                        }
                     }
+                ) {
+                    Text(text = "Go")
                 }
-
+            }
         }
-
     }
-
-
 }
-
