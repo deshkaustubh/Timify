@@ -1,12 +1,14 @@
 package com.streamliners.timify.feature.pieChart
 
 import android.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import com.streamliners.base.BaseViewModel
 import com.streamliners.base.ext.execute
 import com.streamliners.base.taskState.taskStateOf
 import com.streamliners.base.taskState.update
 import com.streamliners.timify.TimifyApp
 import com.streamliners.timify.domain.PieChartInfo
+import com.streamliners.timify.ui.theme.listOfColor
 import ir.mahozad.android.PieChart
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -68,9 +70,15 @@ class PieChartViewModel : BaseViewModel() {
                     calculateTimeDifference(it.startTime, it.endTime)
                 )
             }
+
+            // TODO: Color needs to be different instead random
             listOfPieChartInfo.forEach {
                     list.add(
-                        PieChart.Slice(fraction = fraction(it.startTime, it.endTime, totalHours.sum()) ,color = Color.BLUE, label = it.taskName)
+                        PieChart.Slice(
+                            fraction = fraction(it.startTime, it.endTime, totalHours.sum()),
+                            color = listOfColor.random().toArgb(),
+                            label = it.taskName
+                        )
                     )
             }
             slice.update(
