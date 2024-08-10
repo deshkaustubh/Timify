@@ -10,9 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.google.ai.client.generativeai.type.asTextOrNull
 import com.streamliners.timify.feature.chat.ChatViewModel
-import com.streamliners.timify.feature.chat.ChatViewModel.ChatListItem
+import com.streamliners.timify.feature.chat.ChatViewModel.ChatHistoryUIItem.Role.Model
+import com.streamliners.timify.feature.chat.ChatViewModel.ChatHistoryUIItem.Role.User
 
 @Composable
 fun MessagesList(
@@ -25,25 +25,21 @@ fun MessagesList(
         contentPadding = PaddingValues(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(data.chatListItems) { contentListItem ->
+        items(data.chatHistoryUIItems) { item ->
 
             Box(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = when (contentListItem) {
-                    is ChatListItem.UserMessage -> Alignment.CenterEnd
-                    is ChatListItem.ModelMessage -> Alignment.CenterStart
+                contentAlignment = when (item.role) {
+                    User -> Alignment.CenterEnd
+                    Model -> Alignment.CenterStart
                 }
             ) {
-                when (contentListItem) {
-
-                    is ChatListItem.ModelMessage -> {
-                        MessageCard(
-                            message = contentListItem.modelContent.parts.first().asTextOrNull().toString(),
-
-                        )
+                when (item.role) {
+                    User -> {
+                        MessageCard(item)
                     }
-                    is ChatListItem.UserMessage -> {
-                        MessageCard(message = contentListItem.userContent.parts.first().asTextOrNull().toString())
+                    Model -> {
+                        MessageCard(item)
                     }
                 }
             }
