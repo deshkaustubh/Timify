@@ -7,10 +7,7 @@ import androidx.room.PrimaryKey
 data class ChatHistoryItem(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-
     val date: String,
-
     val role: String? = "user",
-
     val message: String
 )

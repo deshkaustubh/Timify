@@ -5,9 +5,13 @@ import com.streamliners.base.BaseViewModel
 import com.google.ai.client.generativeai.Chat
 import com.google.ai.client.generativeai.type.Content
 import com.google.ai.client.generativeai.type.content
+import com.streamliners.base.exception.defaultExecuteHandlingError
+import com.streamliners.base.exception.log
 import com.streamliners.base.ext.execute
+import com.streamliners.base.ext.executeOnMain
 import com.streamliners.base.taskState.taskStateOf
 import com.streamliners.base.taskState.update
+import com.streamliners.timify.BuildConfig
 import com.streamliners.timify.data.local.dao.ChatHistoryDao
 import com.streamliners.timify.data.local.dao.TaskInfoDao
 import com.streamliners.timify.domain.model.ChatHistoryItem
@@ -80,11 +84,13 @@ class ChatViewModel(
         }
     }
 
-    fun savePieChartInfoToRoom() {
+    fun saveTaskInfoToLocal(onSuccess: () -> Unit) {
         execute {
             val response = chat.send("give data in csv")
 
             val lines = response.split("\n").dropLast(1)
+
+            log("response from model : '$response'", "pieChartDebug", buildType = BuildConfig.BUILD_TYPE)
 
             taskInfoDao.clear()
 
@@ -100,6 +106,8 @@ class ChatViewModel(
                     )
                 )
             }
+
+            executeOnMain { onSuccess() }
         }
     }
 

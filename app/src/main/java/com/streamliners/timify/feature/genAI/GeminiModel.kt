@@ -22,13 +22,15 @@ object GeminiModel {
             
             Here you need to be careful when I give you the special command \"give data in CSV\" then you need to give me data in following formate otherwise you need to give data in previous formate:
             
+            When asked to give data in csv, Times should strictly follow 'hh:mm a' format and should not be any relative time like 'just now'. Also, it should strictly follow this csv format only :
+    
             Task/Activity Name, Start Time, End Time
             for Example
-            9 AM, 10 AM, Gym
-            10 AM, 1 PM, Study
-            1 PM, 2 PM, Lunch
-            2 PM, 5 PM, Chess
-            5 PM, 7 PM, Yoga
+            9:00 AM, 10:30 AM, Gym
+            10:30 AM, 1:00 PM, Study
+            1:00 PM, 2:00 PM, Lunch
+            2:00 PM, 5:00 PM, Chess
+            5:00 PM, 7:00 PM, Yoga
             
             Note :- Don't provide me any extra message in response like Here is your data etc. 
             I only want data in given format.

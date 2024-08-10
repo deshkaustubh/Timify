@@ -1,15 +1,22 @@
 package com.streamliners.timify.feature.pieChart
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.toArgb
+import androidx.lifecycle.viewModelScope
 import com.streamliners.base.BaseViewModel
+import com.streamliners.base.exception.log
 import com.streamliners.base.ext.execute
 import com.streamliners.base.taskState.taskStateOf
 import com.streamliners.base.taskState.update
+import com.streamliners.compose.comp.textInput.state.TextInputState
+import com.streamliners.compose.comp.textInput.state.value
+import com.streamliners.timify.BuildConfig
 import com.streamliners.timify.data.local.dao.TaskInfoDao
 import com.streamliners.timify.ui.theme.listOfColors
 import com.streamliners.utils.DateTimeUtils.Format.Companion.DATE_MONTH_YEAR_1
 import com.streamliners.utils.DateTimeUtils.formatTime
 import ir.mahozad.android.PieChart
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -17,7 +24,9 @@ class PieChartViewModel(
     private val taskInfoDao: TaskInfoDao
 ) : BaseViewModel() {
 
-    private val currentDate = formatTime(DATE_MONTH_YEAR_1)
+    val currentDate = mutableStateOf(
+        TextInputState("Date", value = formatTime(DATE_MONTH_YEAR_1))
+    )
     val slices = taskStateOf<List<PieChart.Slice>>()
 
     fun start() {
@@ -26,9 +35,9 @@ class PieChartViewModel(
         }
     }
 
-    private fun calculateTimeDifference(start: String, end: String): Int {
+    private fun calculateTimeDifferenceInMins(start: String, end: String): Int {
         // Define the date format
-        val format = SimpleDateFormat("hh a", Locale.getDefault())
+        val format = SimpleDateFormat("hh:mm a", Locale.getDefault())
 
         // Parse the start and end times
         val startDate = format.parse(start)
@@ -37,32 +46,35 @@ class PieChartViewModel(
         // Calculate the difference in milliseconds
         val differenceInMillis = endDate.time - startDate.time
 
-        // Convert milliseconds to hours
-        return (differenceInMillis / (1000 * 60 * 60)).toInt()
+        // Convert milliseconds to minutes
+        return (differenceInMillis / (1000 * 60)).toInt()
     }
 
     private fun sliceFraction(start: String, end: String, totalHours: Int): Float {
-        return calculateTimeDifference(start, end) * 1.0f / totalHours
+        return calculateTimeDifferenceInMins(start, end) * 1.0f / totalHours
     }
 
-    private fun onDateChanged(){
-        execute {
-            val listOfTaskInfo = taskInfoDao.getList(currentDate).toMutableList()
+    fun onDateChanged(){
+        viewModelScope.launch {
+            val listOfTaskInfo = taskInfoDao.getList(currentDate.value()).toMutableList()
 
-            val totalHours = listOfTaskInfo.sumOf {
-                calculateTimeDifference(it.startTime, it.endTime)
+            val totalMins = listOfTaskInfo.sumOf {
+                calculateTimeDifferenceInMins(it.startTime, it.endTime)
             }
 
             // TODO: Color needs to be different instead random
-            slices.update(
-                listOfTaskInfo.map { task ->
-                    PieChart.Slice(
-                        fraction = sliceFraction(task.startTime, task.endTime, totalHours),
-                        color = listOfColors.random().toArgb(),
-                        label = task.name
-                    )
-                }
-            )
+
+            val slicesList = listOfTaskInfo.map { task ->
+                PieChart.Slice(
+                    fraction = sliceFraction(task.startTime, task.endTime, totalMins),
+                    color = listOfColors.random().toArgb(),
+                    label = task.name
+                )
+            }
+
+            log("slices : '$slicesList'", "pieChartDebug", buildType = BuildConfig.BUILD_TYPE)
+
+            slices.update(slicesList)
         }
     }
 
