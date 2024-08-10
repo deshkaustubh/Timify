@@ -7,8 +7,8 @@ import androidx.navigation.compose.composable
 import com.streamliners.base.ext.koinBaseViewModel
 import com.streamliners.timify.MainActivity
 import com.streamliners.timify.feature.chat.ChatScreen
-import com.streamliners.timify.feature.chat.VoiceToTextScreen
 import com.streamliners.timify.feature.pieChart.PieChartScreen
+import com.streamliners.pickers.date.showDatePickerDialog
 
 @Composable
 fun MainActivity.NavHostGraph(
@@ -30,7 +30,8 @@ fun MainActivity.NavHostGraph(
         composable("PieChartScreen"){
             PieChartScreen(
                 navController = navController,
-                viewModel = koinBaseViewModel())
+                viewModel = koinBaseViewModel(),
+                showDatePicker = ::showDatePickerDialog)
         }
     }
 
