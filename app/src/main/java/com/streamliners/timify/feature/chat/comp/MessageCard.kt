@@ -35,7 +35,6 @@ fun MessageCard(
                 Text(
                     text = item.message().trim(),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = Color.Black,
                     modifier = Modifier.weight(1f)
                         .padding(bottom = 8.dp)
                 )
@@ -43,7 +42,7 @@ fun MessageCard(
                 Text(
                     modifier = Modifier.align(Alignment.Bottom),
                     text = item.formattedTime,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         }

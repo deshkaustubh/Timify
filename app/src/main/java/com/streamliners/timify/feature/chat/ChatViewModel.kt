@@ -1,5 +1,6 @@
 package com.streamliners.timify.feature.chat
 
+import androidx.compose.runtime.mutableStateOf
 import com.streamliners.base.BaseViewModel
 
 import com.google.ai.client.generativeai.Chat
@@ -8,9 +9,12 @@ import com.google.ai.client.generativeai.type.content
 import com.streamliners.base.exception.log
 import com.streamliners.base.ext.execute
 import com.streamliners.base.ext.executeOnMain
+import com.streamliners.base.ext.hideLoader
+import com.streamliners.base.ext.showLoader
 import com.streamliners.base.taskState.taskStateOf
 import com.streamliners.base.taskState.update
 import com.streamliners.timify.BuildConfig
+import com.streamliners.timify.android.helper.TTSHelper
 import com.streamliners.timify.data.local.dao.ChatHistoryDao
 import com.streamliners.timify.data.local.dao.TaskInfoDao
 import com.streamliners.timify.domain.model.ChatHistoryItem
@@ -26,7 +30,8 @@ import kotlinx.coroutines.flow.collectLatest
 
 class ChatViewModel(
     private val chatHistoryDao: ChatHistoryDao,
-    private val taskInfoDao: TaskInfoDao
+    private val taskInfoDao: TaskInfoDao,
+    val ttsHelper: TTSHelper
 ) : BaseViewModel() {
 
     data class ChatHistoryUIItem(
@@ -43,8 +48,11 @@ class ChatViewModel(
         val chatHistoryUIItems: List<ChatHistoryUIItem>
     )
 
+    enum class Mode { Text, Voice }
+
     private val generativeModel = GeminiModel.get()
 
+    val mode = mutableStateOf(Mode.Text)
     val data = taskStateOf<Data>()
     private val currentDate = formatTime(DATE_MONTH_YEAR_1)
     private lateinit var chat: Chat
@@ -62,8 +70,14 @@ class ChatViewModel(
         }
     }
 
-    fun sendPrompt(prompt: String, onSuccess: () -> Unit) {
-        execute {
+    fun sendPrompt(
+        prompt: String,
+        onSuccess: () -> Unit,
+        takeNextVoicePrompt: () -> Unit
+    ) {
+        execute(false) {
+            showLoader()
+
             val response = chat.send(prompt)
 
             chatHistoryDao.add(
@@ -80,7 +94,13 @@ class ChatViewModel(
                 )
             )
 
+            hideLoader()
             onSuccess()
+
+            if (mode.value == Mode.Voice) {
+                ttsHelper.speak(response)
+                takeNextVoicePrompt()
+            }
         }
     }
 

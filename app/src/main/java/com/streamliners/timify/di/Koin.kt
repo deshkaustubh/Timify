@@ -1,6 +1,7 @@
 package com.streamliners.timify.di
 
 import android.app.Application
+import com.streamliners.timify.android.helper.TTSHelper
 import com.streamliners.timify.data.local.LocalDB
 import com.streamliners.timify.feature.chat.ChatViewModel
 import com.streamliners.timify.feature.pieChart.PieChartViewModel
@@ -38,9 +39,10 @@ private val appModule = module {
         val db: LocalDB = get()
         db.taskInfoDao()
     }
+    single { TTSHelper(androidApplication()) }
 }
 
 private val viewModelModule = module {
-    viewModel { ChatViewModel(get(), get()) }
+    viewModel { ChatViewModel(get(), get(), get()) }
     viewModel { PieChartViewModel(get()) }
 }
