@@ -1,4 +1,4 @@
-package com.streamliners.timify
+package com.streamliners.timify.ui.main
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -8,7 +8,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.streamliners.NavHostGraph
 import com.streamliners.base.BaseActivity
 import com.streamliners.base.uiEvent.UiEventDialogs
 import com.streamliners.timify.ui.theme.TimifyTheme
