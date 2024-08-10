@@ -5,7 +5,6 @@ import com.streamliners.base.BaseViewModel
 import com.google.ai.client.generativeai.Chat
 import com.google.ai.client.generativeai.type.Content
 import com.google.ai.client.generativeai.type.content
-import com.streamliners.base.exception.defaultExecuteHandlingError
 import com.streamliners.base.exception.log
 import com.streamliners.base.ext.execute
 import com.streamliners.base.ext.executeOnMain
@@ -16,28 +15,32 @@ import com.streamliners.timify.data.local.dao.ChatHistoryDao
 import com.streamliners.timify.data.local.dao.TaskInfoDao
 import com.streamliners.timify.domain.model.ChatHistoryItem
 import com.streamliners.timify.domain.model.TaskInfo
+import com.streamliners.timify.feature.chat.ChatViewModel.ChatHistoryUIItem.Role.Model
+import com.streamliners.timify.feature.chat.ChatViewModel.ChatHistoryUIItem.Role.User
 import com.streamliners.timify.feature.genAI.GeminiModel
 import com.streamliners.timify.other.ext.send
 import com.streamliners.utils.DateTimeUtils.Format.Companion.DATE_MONTH_YEAR_1
+import com.streamliners.utils.DateTimeUtils.Format.Companion.HOUR_MIN_12
 import com.streamliners.utils.DateTimeUtils.formatTime
+import kotlinx.coroutines.flow.collectLatest
 
 class ChatViewModel(
     private val chatHistoryDao: ChatHistoryDao,
     private val taskInfoDao: TaskInfoDao
 ) : BaseViewModel() {
 
-    sealed class ChatListItem {
-        class ModelMessage(
-            val modelContent: Content
-        ) : ChatListItem()
-
-        class UserMessage(
-            val userContent: Content
-        ) : ChatListItem()
+    data class ChatHistoryUIItem(
+        val content: Content,
+        val time: Long,
+        val formattedTime: String,
+        val date: String,
+        val role: Role
+    ) {
+        enum class Role { User, Model }
     }
 
     class Data(
-        val chatListItems: List<ChatListItem>
+        val chatHistoryUIItems: List<ChatHistoryUIItem>
     )
 
     private val generativeModel = GeminiModel.get()
@@ -47,12 +50,15 @@ class ChatViewModel(
     private lateinit var chat: Chat
 
     fun start() {
-        execute {
-            val chatHistory = chatHistoryDao.getList(currentDate).toContentList()
-            chat = generativeModel.startChat(chatHistory)
-            data.update(
-                Data(chat.history.toChatListItems())
-            )
+        execute(false) {
+            chatHistoryDao.getList(currentDate).collectLatest { chatHistory ->
+                if (!this@ChatViewModel::chat.isInitialized) {
+                    chat = generativeModel.startChat(chatHistory.toContentList())
+                }
+                data.update(
+                    Data(chatHistory.toUIItems())
+                )
+            }
         }
     }
 
@@ -62,7 +68,6 @@ class ChatViewModel(
 
             chatHistoryDao.add(
                 ChatHistoryItem(
-                    date = currentDate,
                     role = "user",
                     message = prompt
                 )
@@ -70,14 +75,9 @@ class ChatViewModel(
 
             chatHistoryDao.add(
                 ChatHistoryItem(
-                    date = currentDate,
                     role = "model",
                     message = response
                 )
-            )
-
-            data.update(
-                Data(chat.history.toChatListItems())
             )
 
             onSuccess()
@@ -90,7 +90,11 @@ class ChatViewModel(
 
             val lines = response.split("\n").dropLast(1)
 
-            log("response from model : '$response'", "pieChartDebug", buildType = BuildConfig.BUILD_TYPE)
+            log(
+                "response from model : '$response'",
+                "pieChartDebug",
+                buildType = BuildConfig.BUILD_TYPE
+            )
 
             taskInfoDao.clear()
 
@@ -112,20 +116,22 @@ class ChatViewModel(
     }
 
     private fun List<ChatHistoryItem>.toContentList(): MutableList<Content> {
-        return map { item ->
-            content(role = item.role) {
-                text(item.message)
-            }
-        }.toMutableList()
+        return map { it.extractContent() }.toMutableList()
     }
 
-    private fun List<Content>.toChatListItems(): List<ChatListItem> {
-        return map { content ->
-            if (content.role == "user") {
-                ChatListItem.UserMessage(content)
-            } else {
-                ChatListItem.ModelMessage(content)
-            }
+    private fun List<ChatHistoryItem>.toUIItems(): List<ChatHistoryUIItem> {
+        return map { item ->
+            ChatHistoryUIItem(
+                content = item.extractContent(),
+                time = item.time,
+                formattedTime = formatTime(HOUR_MIN_12, item.time),
+                date = formatTime(DATE_MONTH_YEAR_1, item.time),
+                role = if (item.role == "user") User else Model
+            )
         }
+    }
+
+    private fun ChatHistoryItem.extractContent(): Content {
+        return content(role = role) { text(message) }
     }
 }
