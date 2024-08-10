@@ -1,9 +1,9 @@
-package com.streamliners.timify.data.local
+package com.streamliners.timify.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.streamliners.timify.domain.ChatHistoryItem
+import com.streamliners.timify.domain.model.ChatHistoryItem
 
 @Dao
 interface ChatHistoryDao {

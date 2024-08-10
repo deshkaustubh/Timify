@@ -1,6 +1,5 @@
 package com.streamliners.timify.feature.pieChart
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +16,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
@@ -33,18 +30,20 @@ import ir.mahozad.android.PieChart
 fun PieChartScreen(
     navController: NavController,
     viewModel: PieChartViewModel,
-    showDatePicker: ShowDatePicker,
-    ) {
-
-    val dob = remember { mutableStateOf<String?>(null) }
+    showDatePicker: ShowDatePicker
+) {
+    val dateState = remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.getPieChartData()
+        viewModel.start()
     }
 
     TitleBarScaffold(
         title = "Pie Chart",
-        navigateUp = {navController.navigateUp()}) { paddingValues  ->
+        navigateUp = {
+            navController.navigateUp()
+        }
+    ) { paddingValues  ->
 
         Column(
             modifier = Modifier
@@ -63,37 +62,32 @@ fun PieChartScreen(
                         showDatePicker(
                             DatePickerDialog.Params(
                                 format = DATE_MONTH_YEAR_2,
-                                prefill = dob.value,
+                                prefill = dateState.value,
                                 onPicked = { date ->
-                                    dob.value = date
+                                    dateState.value = date
                                 }
                             )
                         )
                     },
-                value = dob.value ?: "",
+                value = dateState.value ?: "",
                 onValueChange = {},
                 readOnly = false,
                 enabled = false,
-                label = { Text(text = "Date of Birth") }
+                label = { Text(text = "Date") }
             )
 
-            viewModel.slice.whenLoaded { slice ->
+            viewModel.slices.whenLoaded { slices ->
                 AndroidView(
                     modifier = Modifier
                         .fillMaxSize(),
                     factory = { context ->
                         PieChart(context).apply {
-                            slices = slice
+                            this.slices = slices
                         }
                     },
-                    update = { view ->
-                        // View's been inflated or state read in this block has been updated
-                        // Add logic here if necessary
-                    }
+                    update = { }
                 )
             }
         }
-
     }
-
 }

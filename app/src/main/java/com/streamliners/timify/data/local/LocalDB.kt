@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.streamliners.timify.domain.ChatHistoryItem
-import com.streamliners.timify.domain.TaskInfo
+import com.streamliners.timify.data.local.dao.ChatHistoryDao
+import com.streamliners.timify.data.local.dao.TaskInfoDao
+import com.streamliners.timify.domain.model.ChatHistoryItem
+import com.streamliners.timify.domain.model.TaskInfo
 
 @Database(entities = [ChatHistoryItem::class, TaskInfo::class], version = 5)
 abstract class LocalDB : RoomDatabase(){

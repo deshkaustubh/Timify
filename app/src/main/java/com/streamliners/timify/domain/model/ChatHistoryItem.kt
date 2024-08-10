@@ -1,8 +1,7 @@
-package com.streamliners.timify.domain
+package com.streamliners.timify.domain.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-
 
 @Entity("ChatHistory")
 data class ChatHistoryItem(

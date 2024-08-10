@@ -5,37 +5,26 @@ import com.streamliners.base.BaseViewModel
 import com.streamliners.base.ext.execute
 import com.streamliners.base.taskState.taskStateOf
 import com.streamliners.base.taskState.update
-import com.streamliners.timify.TimifyApp
-import com.streamliners.timify.data.local.TaskInfoDao
-import com.streamliners.timify.domain.TaskInfo
-import com.streamliners.timify.ui.theme.listOfColor
+import com.streamliners.timify.data.local.dao.TaskInfoDao
+import com.streamliners.timify.ui.theme.listOfColors
+import com.streamliners.utils.DateTimeUtils.Format.Companion.DATE_MONTH_YEAR_1
+import com.streamliners.utils.DateTimeUtils.formatTime
 import ir.mahozad.android.PieChart
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class PieChartViewModel(
     private val taskInfoDao: TaskInfoDao
 ) : BaseViewModel() {
 
-    val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+    private val currentDate = formatTime(DATE_MONTH_YEAR_1)
+    val slices = taskStateOf<List<PieChart.Slice>>()
 
-    val currentDate = LocalDateTime.now().format(formatter)
-
-    // TODO: Why it is in var
-    var listOfTaskInfo = mutableListOf<TaskInfo>()
-    val slice = taskStateOf<List<PieChart.Slice>>()
-
-    fun getPieChartData() {
-
+    fun start() {
         execute {
-            listOfTaskInfo = this@PieChartViewModel.taskInfoDao.getList(currentDate).toMutableList()
-            setDate()
+            onDateChanged()
         }
-
     }
-
 
     private fun calculateTimeDifference(start: String, end: String): Int {
         // Define the date format
@@ -52,37 +41,27 @@ class PieChartViewModel(
         return (differenceInMillis / (1000 * 60 * 60)).toInt()
     }
 
-    private fun fraction(start: String, end: String, totalHours: Int):Float{
-
-        val fraction: Float = calculateTimeDifference(start, end) * 1.0f / totalHours
-
-        return fraction
+    private fun sliceFraction(start: String, end: String, totalHours: Int): Float {
+        return calculateTimeDifference(start, end) * 1.0f / totalHours
     }
 
-
-    // TODO: Where should I call it?
-    fun setDate(){
+    private fun onDateChanged(){
         execute {
-            val list = mutableListOf<PieChart.Slice>()
-            val totalHours = mutableListOf<Int>()
-            listOfTaskInfo.forEach {
-                totalHours.add(
-                    calculateTimeDifference(it.startTime, it.endTime)
-                )
+            val listOfTaskInfo = taskInfoDao.getList(currentDate).toMutableList()
+
+            val totalHours = listOfTaskInfo.sumOf {
+                calculateTimeDifference(it.startTime, it.endTime)
             }
 
             // TODO: Color needs to be different instead random
-            listOfTaskInfo.forEach {
-                    list.add(
-                        PieChart.Slice(
-                            fraction = fraction(it.startTime, it.endTime, totalHours.sum()),
-                            color = listOfColor.random().toArgb(),
-                            label = it.name
-                        )
+            slices.update(
+                listOfTaskInfo.map { task ->
+                    PieChart.Slice(
+                        fraction = sliceFraction(task.startTime, task.endTime, totalHours),
+                        color = listOfColors.random().toArgb(),
+                        label = task.name
                     )
-            }
-            slice.update(
-                list
+                }
             )
         }
     }

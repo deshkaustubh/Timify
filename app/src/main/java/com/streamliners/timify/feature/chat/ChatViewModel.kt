@@ -8,10 +8,10 @@ import com.google.ai.client.generativeai.type.content
 import com.streamliners.base.ext.execute
 import com.streamliners.base.taskState.taskStateOf
 import com.streamliners.base.taskState.update
-import com.streamliners.timify.data.local.ChatHistoryDao
-import com.streamliners.timify.data.local.TaskInfoDao
-import com.streamliners.timify.domain.ChatHistoryItem
-import com.streamliners.timify.domain.TaskInfo
+import com.streamliners.timify.data.local.dao.ChatHistoryDao
+import com.streamliners.timify.data.local.dao.TaskInfoDao
+import com.streamliners.timify.domain.model.ChatHistoryItem
+import com.streamliners.timify.domain.model.TaskInfo
 import com.streamliners.timify.feature.genAI.GeminiModel
 import com.streamliners.timify.other.ext.send
 import com.streamliners.utils.DateTimeUtils.Format.Companion.DATE_MONTH_YEAR_1
