@@ -14,6 +14,9 @@ interface TaskInfoDao {
     @Query("DELETE FROM TasksInfo")
     suspend fun clear()
 
+    @Query("DELETE FROM TasksInfo WHERE date = :date")
+    suspend fun clearSpecificDateTaskInfo(date: String)
+
     @Insert
     suspend fun add(taskInfo: TaskInfo)
 

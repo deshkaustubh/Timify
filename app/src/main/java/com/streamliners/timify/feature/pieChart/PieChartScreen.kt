@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
+import com.streamliners.base.exception.log
 import com.streamliners.base.taskState.comp.whenLoaded
 import com.streamliners.compose.android.comp.appBar.TitleBarScaffold
 import com.streamliners.compose.comp.textInput.TextInputLayoutReadOnly
@@ -21,6 +22,7 @@ import com.streamliners.compose.comp.textInput.state.nullableValue
 import com.streamliners.compose.comp.textInput.state.update
 import com.streamliners.pickers.date.DatePickerDialog
 import com.streamliners.pickers.date.ShowDatePicker
+import com.streamliners.timify.BuildConfig
 import com.streamliners.utils.DateTimeUtils.Format.Companion.DATE_MONTH_YEAR_1
 import ir.mahozad.android.PieChart
 
@@ -76,7 +78,11 @@ fun PieChartScreen(
                             this.slices = slices
                         }
                     },
-                    update = { }
+                    update = {
+                        log("Pie Chart Updated", "UPDATE",
+                            false,
+                            BuildConfig.BUILD_TYPE)
+                    }
                 )
             }
         }

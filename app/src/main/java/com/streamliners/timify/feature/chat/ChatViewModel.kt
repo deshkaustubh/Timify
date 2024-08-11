@@ -116,7 +116,7 @@ class ChatViewModel(
                 buildType = BuildConfig.BUILD_TYPE
             )
 
-            taskInfoDao.clear()
+            taskInfoDao.clearSpecificDateTaskInfo(currentDate)
 
             lines.forEach { line ->
                 val data = line.split(",")
