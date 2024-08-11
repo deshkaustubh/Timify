@@ -52,6 +52,15 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/LICENSE"
+            excludes += "META-INF/LICENSE.txt"
+            excludes += "META-INF/license.txt"
+            excludes += "META-INF/NOTICE"
+            excludes += "META-INF/NOTICE.txt"
+            excludes += "META-INF/notice.txt"
+            excludes += "META-INF/ASL2.0"
+            excludes += "META-INF/*.kotlin_module"
         }
     }
     configurations {
@@ -127,6 +136,8 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    implementation("com.google.apis:google-api-services-sheets:v4-rev20220927-2.0.0")
 
     implementation("io.ktor:ktor-client-core:2.3.10")
     implementation("io.ktor:ktor-client-cio:2.3.10")

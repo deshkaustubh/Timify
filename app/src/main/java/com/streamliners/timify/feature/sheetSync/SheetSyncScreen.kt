@@ -37,16 +37,22 @@ fun SheetSyncScreen(
             Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             viewModel.state.whenLoaded { state ->
                 when (state) {
                     is Active -> {
                         Text(
-                            text = "Signed in as ${state.userName} (${state.userEmail})\n\nTokens = ${state.tokens}",
+                            text = "Signed in as ${state.userName} (${state.userEmail})",
                             textAlign = TextAlign.Center
                         )
+
+                        Button(
+                            onClick = viewModel::createNewSheet
+                        ) {
+                            Text(text = "Create new sheet")
+                        }
                     }
                     None -> {
                         Button(
