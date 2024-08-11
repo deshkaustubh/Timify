@@ -9,6 +9,7 @@ import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.model.Spreadsheet
 import com.google.api.services.sheets.v4.model.SpreadsheetProperties
+import com.google.api.services.sheets.v4.model.ValueRange
 import com.streamliners.timify.BuildConfig
 
 class SheetsHelper(
@@ -30,6 +31,18 @@ class SheetsHelper(
 
         val result = sheets.spreadsheets().create(spreadsheet).execute()
         return result.spreadsheetId
+    }
+
+    fun overwrite(sheetId: String, sheetName: String = "Sheet1", rows: List<List<String>>) {
+        sheets.spreadsheets().values().update(sheetId, sheetName, ValueRange().setValues(rows))
+            .setValueInputOption("USER_ENTERED")
+            .execute()
+    }
+
+    fun readAllRows(sheetId: String, sheetName: String = "Sheet1"): List<List<String>> {
+        val response = sheets.spreadsheets().values()[sheetId, sheetName].execute()
+        return response.getValues() as? List<List<String>>
+            ?: error("Unable to parse rows")
     }
 
     private fun GoogleOAuthTokens.toCredential(): Credential {

@@ -6,10 +6,23 @@ sealed interface SheetSyncState {
 
     data object None: SheetSyncState
 
-    data class Active(
+    open class SignedIn(
         val userName: String,
         val userEmail: String,
         val tokens: GoogleOAuthTokens
-    ): SheetSyncState
+    ): SheetSyncState {
+        companion object {
+            fun fromLinkedState(linked: Linked): SignedIn {
+                return with(linked) { SignedIn(userName, userEmail, tokens) }
+            }
+        }
+    }
+
+    class Linked(
+        signedIn: SignedIn,
+        val sheetId: String
+    ): SignedIn(
+        signedIn.userName, signedIn.userEmail, signedIn.tokens
+    ), SheetSyncState
 
 }

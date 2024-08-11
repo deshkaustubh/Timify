@@ -15,4 +15,7 @@ interface ChatHistoryDao {
     @Insert
     suspend fun add(chatHistoryItem: ChatHistoryItem)
 
+    @Query("SELECT COUNT(*) FROM ChatHistory")
+    suspend fun getTotalRowCount(): Int
+
 }

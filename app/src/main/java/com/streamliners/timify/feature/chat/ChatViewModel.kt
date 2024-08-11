@@ -106,6 +106,12 @@ class ChatViewModel(
 
     fun saveTaskInfoToLocal(onSuccess: () -> Unit) {
         execute {
+            val rowsCount = chatHistoryDao.getTotalRowCount()
+            if (rowsCount == 0) {
+                executeOnMain { onSuccess() }
+                return@execute
+            }
+
             val response = chat.send("give data in csv")
 
             val lines = response.split("\n").dropLast(1)
@@ -116,7 +122,7 @@ class ChatViewModel(
                 buildType = BuildConfig.BUILD_TYPE
             )
 
-            taskInfoDao.clearSpecificDateTaskInfo(currentDate)
+            taskInfoDao.clearAllOf(currentDate)
 
             lines.forEach { line ->
                 val data = line.split(",")
