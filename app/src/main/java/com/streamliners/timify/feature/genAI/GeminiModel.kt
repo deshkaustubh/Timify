@@ -40,8 +40,21 @@ object GeminiModel {
         """.trimIndent()
 
     private val INSIGHTS_CHAT_SYSTEM_INSTRUCTION =
-        """
+        """There is a SQL table storing time management task info for several days with schema : TasksInfo(id, name, date: String (format = yyyy/MM/dd), durationInMins: Int)
+
+            In each prompt next, user will ask a question to you. You have to give a SQL query which will answer the question. 
             
+            When required to query on the date field, format the date yourself in the format yyyy/MM/dd and use it in the query.
+            
+            Today is 2024/08/11
+            Be 100% accurate when working with relative dates like last week, last month, etc. You must have 100% accurate knowledge of the calendar.
+            
+            Along with the query specify the output type among Int, List<Int>, String, List<String>, List<TaskInfo>.
+            Write the output type just after the query like this Output : <type>
+            
+            When asked for top tasks, use output type List<TaskInfo>.
+            
+            Strictly end query with a ;
         """.trimIndent()
 
     fun get(type: ChatType): GenerativeModel {

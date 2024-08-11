@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 
 class ChatViewModel(
     private val chatHistoryDao: ChatHistoryDao,
-    private val taskInfoDao: TaskInfoDao,
+    val taskInfoDao: TaskInfoDao,
     val ttsHelper: TTSHelper
 ) : BaseViewModel() {
 
