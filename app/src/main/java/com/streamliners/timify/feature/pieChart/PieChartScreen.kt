@@ -79,6 +79,7 @@ fun PieChartScreen(
                         }
                     },
                     update = {
+                        it.slices = slices
                         log("Pie Chart Updated", "UPDATE",
                             false,
                             BuildConfig.BUILD_TYPE)
