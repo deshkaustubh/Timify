@@ -7,11 +7,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import com.streamliners.base.exception.log
@@ -70,21 +73,35 @@ fun PieChartScreen(
             }
 
             viewModel.slices.whenLoaded { slices ->
-                AndroidView(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    factory = { context ->
-                        PieChart(context).apply {
-                            this.slices = slices
+                if(slices.size > 0){
+                    AndroidView(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        factory = { context ->
+                            PieChart(context).apply {
+                                this.slices = slices
+                            }
+                        },
+                        update = {
+                            it.slices = slices
+                            log("Pie Chart Updated", "UPDATE",
+                                false,
+                                BuildConfig.BUILD_TYPE)
                         }
-                    },
-                    update = {
-                        it.slices = slices
-                        log("Pie Chart Updated", "UPDATE",
-                            false,
-                            BuildConfig.BUILD_TYPE)
+                    ) 
+                } else {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "No-Data Found",
+                            fontSize = 30.sp,
+                            fontWeight = FontWeight.Bold)
                     }
-                )
+                }
+                
             }
         }
     }
