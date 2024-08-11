@@ -48,7 +48,9 @@ fun ChatScreen(
         actions = {
             IconButton(
                 onClick = {
-                    navController.navigate(Screen.SheetSync.route)
+                    viewModel.saveTaskInfoToLocal {
+                        navController.navigate(Screen.SheetSync.route)
+                    }
                 }
             ) {
                 Icon(imageVector = Icons.Default.TableChart, contentDescription = "Sheet Sync")

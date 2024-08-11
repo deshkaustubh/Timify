@@ -11,13 +11,22 @@ interface TaskInfoDao {
     @Query("SELECT * FROM TasksInfo WHERE date = :date")
     suspend fun getList(date: String): List<TaskInfo>
 
+    @Query("SELECT * FROM TasksInfo")
+    suspend fun getAll(): List<TaskInfo>
+
     @Query("DELETE FROM TasksInfo")
     suspend fun clear()
 
     @Query("DELETE FROM TasksInfo WHERE date = :date")
-    suspend fun clearSpecificDateTaskInfo(date: String)
+    suspend fun clearAllOf(date: String)
 
     @Insert
     suspend fun add(taskInfo: TaskInfo)
+
+    @Insert
+    suspend fun addAll(taskInfo: List<TaskInfo>)
+
+    @Query("SELECT COUNT(*) FROM TasksInfo")
+    suspend fun getTotalRowCount(): Int
 
 }

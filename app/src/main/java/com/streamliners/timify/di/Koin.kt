@@ -53,5 +53,5 @@ private val appModule = module {
 private val viewModelModule = module {
     viewModel { ChatViewModel(get(), get(), get()) }
     viewModel { PieChartViewModel(get()) }
-    viewModel { SheetSyncViewModel(get(), get()) }
+    viewModel { SheetSyncViewModel(get(), get(), get()) }
 }
