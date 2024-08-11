@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.TableChart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -45,6 +46,14 @@ fun ChatScreen(
     TitleBarScaffold(
         title = "Timify",
         actions = {
+            IconButton(
+                onClick = {
+                    navController.navigate(Screen.SheetSync.route)
+                }
+            ) {
+                Icon(imageVector = Icons.Default.TableChart, contentDescription = "Sheet Sync")
+            }
+
             IconButton(
                 onClick = {
                     viewModel.saveTaskInfoToLocal {

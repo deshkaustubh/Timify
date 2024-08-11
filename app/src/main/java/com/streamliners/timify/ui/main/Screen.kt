@@ -5,4 +5,5 @@ sealed class Screen(
 ) {
     data object Chat: Screen("Chat")
     data object PieChart: Screen("PieChart")
+    data object SheetSync: Screen("SheetSync")
 }

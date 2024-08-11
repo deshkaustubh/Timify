@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
     //id("com.google.devtools.ksp")
     id("kotlin-kapt")
+    id("com.google.gms.google-services")
 }
 
 
@@ -117,5 +118,17 @@ dependencies {
 
     // Pie Chart
     implementation("ir.mahozad.android:pie-chart:0.7.0")
+
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
+
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    implementation("io.ktor:ktor-client-core:2.3.10")
+    implementation("io.ktor:ktor-client-cio:2.3.10")
 
 }
