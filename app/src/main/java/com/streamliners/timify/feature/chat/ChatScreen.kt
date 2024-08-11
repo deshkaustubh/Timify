@@ -14,10 +14,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -59,8 +57,10 @@ fun ChatScreen(
             IconButton(
                 onClick = {
                     viewModel.saveTaskInfoToLocal {
+                        viewModel.isNewChatHappened.value = false
                         navController.navigate(Screen.PieChart.route)
                     }
+
                 }
             ) {
                 Icon(imageVector = Icons.Default.Insights, contentDescription = "Insights")

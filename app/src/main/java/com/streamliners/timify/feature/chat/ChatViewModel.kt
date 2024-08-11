@@ -57,6 +57,8 @@ class ChatViewModel(
     private val currentDate = formatTime(DATE_MONTH_YEAR_1)
     private lateinit var chat: Chat
 
+    var isNewChatHappened = mutableStateOf(true)
+
     fun start() {
         execute(false) {
             chatHistoryDao.getList(currentDate).collectLatest { chatHistory ->
@@ -77,7 +79,7 @@ class ChatViewModel(
     ) {
         execute(false) {
             showLoader()
-
+            isNewChatHappened.value = true
             val response = chat.send(prompt)
 
             chatHistoryDao.add(
@@ -105,40 +107,41 @@ class ChatViewModel(
     }
 
     fun saveTaskInfoToLocal(onSuccess: () -> Unit) {
-        execute {
-            val rowsCount = chatHistoryDao.getTotalRowCount()
-            if (rowsCount == 0) {
-                executeOnMain { onSuccess() }
-                return@execute
-            }
+            execute {
+                if (isNewChatHappened.value) {
+                    val rowsCount = chatHistoryDao.getTotalRowCount()
+                    if (rowsCount == 0) {
+                        executeOnMain { onSuccess() }
+                        return@execute
+                    }
 
-            val response = chat.send("give data in csv")
+                    val response = chat.send("give data in csv")
 
-            val lines = response.split("\n").dropLast(1)
+                    val lines = response.split("\n").dropLast(1)
 
-            log(
-                "response from model : '$response'",
-                "pieChartDebug",
-                buildType = BuildConfig.BUILD_TYPE
-            )
-
-            taskInfoDao.clearAllOf(currentDate)
-
-            lines.forEach { line ->
-                val data = line.split(",")
-
-                taskInfoDao.add(
-                    TaskInfo(
-                        name = data[0],
-                        startTime = data[1],
-                        endTime = data[2],
-                        date = currentDate
+                    log(
+                        "response from model : '$response'",
+                        "pieChartDebug",
+                        buildType = BuildConfig.BUILD_TYPE
                     )
-                )
-            }
 
-            executeOnMain { onSuccess() }
-        }
+                    taskInfoDao.clearAllOf(currentDate)
+
+                    lines.forEach { line ->
+                        val data = line.split(",")
+
+                        taskInfoDao.add(
+                            TaskInfo(
+                                name = data[0],
+                                startTime = data[1],
+                                endTime = data[2],
+                                date = currentDate
+                            )
+                        )
+                    }
+                }
+                executeOnMain { onSuccess() }
+            }
     }
 
     private fun List<ChatHistoryItem>.toContentList(): MutableList<Content> {
