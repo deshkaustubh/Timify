@@ -10,5 +10,6 @@ data class TaskInfo(
     val date: String,
     val startTime: String,
     val endTime: String,
+    val durationInMins: Int,
     val name: String
 )

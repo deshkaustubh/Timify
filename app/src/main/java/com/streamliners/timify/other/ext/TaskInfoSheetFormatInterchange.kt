@@ -31,7 +31,8 @@ fun List<List<String>>.parseAsTaskInfoList(): List<TaskInfo> {
             date = fields[0],
             startTime = fields[1],
             endTime = fields[2],
-            name = fields[3]
+            name = fields[3],
+            durationInMins = calculateTimeDiffInMins(fields[1], fields[2])
         )
     }
 }

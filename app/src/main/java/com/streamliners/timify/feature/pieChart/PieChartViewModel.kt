@@ -35,38 +35,17 @@ class PieChartViewModel(
         }
     }
 
-    private fun calculateTimeDifferenceInMins(start: String, end: String): Int {
-        // Define the date format
-        val format = SimpleDateFormat("hh:mm a", Locale.getDefault())
-
-        // Parse the start and end times
-        val startDate = format.parse(start)
-        val endDate = format.parse(end)
-
-        // Calculate the difference in milliseconds
-        val differenceInMillis = endDate.time - startDate.time
-
-        // Convert milliseconds to minutes
-        return (differenceInMillis / (1000 * 60)).toInt()
-    }
-
-    private fun sliceFraction(start: String, end: String, totalHours: Int): Float {
-        return calculateTimeDifferenceInMins(start, end) * 1.0f / totalHours
-    }
-
     fun onDateChanged(){
         viewModelScope.launch {
             val listOfTaskInfo = taskInfoDao.getList(currentDate.value()).toMutableList()
 
-            val totalMins = listOfTaskInfo.sumOf {
-                calculateTimeDifferenceInMins(it.startTime, it.endTime)
-            }
+            val totalMins = listOfTaskInfo.sumOf { it.durationInMins }
 
             // TODO: Color needs to be different instead random
 
             val slicesList = listOfTaskInfo.map { task ->
                 PieChart.Slice(
-                    fraction = sliceFraction(task.startTime, task.endTime, totalMins),
+                    fraction = task.durationInMins / totalMins.toFloat(),
                     color = listOfColors.random().toArgb(),
                     label = task.name
                 )

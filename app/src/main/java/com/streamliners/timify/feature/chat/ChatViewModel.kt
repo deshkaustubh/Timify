@@ -1,11 +1,10 @@
 package com.streamliners.timify.feature.chat
 
 import androidx.compose.runtime.mutableStateOf
-import com.streamliners.base.BaseViewModel
-
 import com.google.ai.client.generativeai.Chat
+import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.Content
-import com.google.ai.client.generativeai.type.content
+import com.streamliners.base.BaseViewModel
 import com.streamliners.base.exception.log
 import com.streamliners.base.ext.execute
 import com.streamliners.base.ext.executeOnMain
@@ -19,14 +18,19 @@ import com.streamliners.timify.data.local.dao.ChatHistoryDao
 import com.streamliners.timify.data.local.dao.TaskInfoDao
 import com.streamliners.timify.domain.model.ChatHistoryItem
 import com.streamliners.timify.domain.model.TaskInfo
-import com.streamliners.timify.feature.chat.ChatViewModel.ChatHistoryUIItem.Role.Model
-import com.streamliners.timify.feature.chat.ChatViewModel.ChatHistoryUIItem.Role.User
+import com.streamliners.timify.feature.chat.ChatViewModel.ChatType.Insights
+import com.streamliners.timify.feature.chat.ChatViewModel.ChatType.Normal
+import com.streamliners.timify.feature.chat.viewModelExt.insightResponseFor
+import com.streamliners.timify.feature.chat.viewModelExt.toContentList
+import com.streamliners.timify.feature.chat.viewModelExt.toUIItems
 import com.streamliners.timify.feature.genAI.GeminiModel
+import com.streamliners.timify.other.ext.calculateTimeDiffInMins
 import com.streamliners.timify.other.ext.send
 import com.streamliners.utils.DateTimeUtils.Format.Companion.DATE_MONTH_YEAR_1
-import com.streamliners.utils.DateTimeUtils.Format.Companion.HOUR_MIN_12
 import com.streamliners.utils.DateTimeUtils.formatTime
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class ChatViewModel(
     private val chatHistoryDao: ChatHistoryDao,
@@ -48,24 +52,42 @@ class ChatViewModel(
         val chatHistoryUIItems: List<ChatHistoryUIItem>
     )
 
+    enum class ChatType { Normal, Insights }
+
     enum class Mode { Text, Voice }
 
-    private val generativeModel = GeminiModel.get()
+    private lateinit var generativeModel: GenerativeModel
 
+    val type = mutableStateOf(Normal)
     val mode = mutableStateOf(Mode.Text)
     val data = taskStateOf<Data>()
-    private val currentDate = formatTime(DATE_MONTH_YEAR_1)
-    private lateinit var chat: Chat
 
-    fun start() {
+    private val currentDate = formatTime(DATE_MONTH_YEAR_1)
+
+    lateinit var chat: Chat
+
+    private var collectJob: Job? = null
+
+    fun loadChat() {
         execute(false) {
-            chatHistoryDao.getList(currentDate).collectLatest { chatHistory ->
-                if (!this@ChatViewModel::chat.isInitialized) {
-                    chat = generativeModel.startChat(chatHistory.toContentList())
+            collectJob?.cancel()
+
+            collectJob = launch {
+                var isFirstFetch = true
+                chatHistoryDao.getList(currentDate, type.value.name).collectLatest { chatHistory ->
+                    if (isFirstFetch) {
+                        isFirstFetch = false
+
+                        generativeModel = GeminiModel.get(type.value)
+
+                        chat = generativeModel.startChat(
+                            if (type.value == Normal) chatHistory.toContentList() else emptyList()
+                        )
+                    }
+                    data.update(
+                        Data(chatHistory.toUIItems())
+                    )
                 }
-                data.update(
-                    Data(chatHistory.toUIItems())
-                )
             }
         }
     }
@@ -78,10 +100,15 @@ class ChatViewModel(
         execute(false) {
             showLoader()
 
-            val response = chat.send(prompt)
+            var response = chat.send(prompt)
+
+            if (type.value == Insights) {
+                response = insightResponseFor(response)
+            }
 
             chatHistoryDao.add(
                 ChatHistoryItem(
+                    type = type.value.name,
                     role = "user",
                     message = prompt
                 )
@@ -89,6 +116,7 @@ class ChatViewModel(
 
             chatHistoryDao.add(
                 ChatHistoryItem(
+                    type = type.value.name,
                     role = "model",
                     message = response
                 )
@@ -127,12 +155,14 @@ class ChatViewModel(
             lines.forEach { line ->
                 val data = line.split(",")
 
+                // 1arXlKoTRvcy5SOAgqNv2DSbIQBlWi9j9DeitB9XtMl8
                 taskInfoDao.add(
                     TaskInfo(
                         name = data[0],
                         startTime = data[1],
                         endTime = data[2],
-                        date = currentDate
+                        date = currentDate,
+                        durationInMins = calculateTimeDiffInMins(data[1], data[2])
                     )
                 )
             }
@@ -141,23 +171,4 @@ class ChatViewModel(
         }
     }
 
-    private fun List<ChatHistoryItem>.toContentList(): MutableList<Content> {
-        return map { it.extractContent() }.toMutableList()
-    }
-
-    private fun List<ChatHistoryItem>.toUIItems(): List<ChatHistoryUIItem> {
-        return map { item ->
-            ChatHistoryUIItem(
-                content = item.extractContent(),
-                time = item.time,
-                formattedTime = formatTime(HOUR_MIN_12, item.time),
-                date = formatTime(DATE_MONTH_YEAR_1, item.time),
-                role = if (item.role == "user") User else Model
-            )
-        }
-    }
-
-    private fun ChatHistoryItem.extractContent(): Content {
-        return content(role = role) { text(message) }
-    }
 }

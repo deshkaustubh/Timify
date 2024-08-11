@@ -4,10 +4,13 @@ import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
 import com.google.ai.client.generativeai.type.generationConfig
 import com.streamliners.timify.BuildConfig
+import com.streamliners.timify.feature.chat.ChatViewModel
+import com.streamliners.timify.feature.chat.ChatViewModel.ChatType
+import com.streamliners.timify.feature.chat.ChatViewModel.ChatType.*
 
 object GeminiModel {
 
-    private val SYSTEM_INSTRUCTION =
+    private val NORMAL_CHAT_SYSTEM_INSTRUCTION =
         """You are a time managing assistant, helping user in knowing where they spend most of their time. Also, providing analytics as to what percentage of time is spent on what tasks day / week / month wise. For this you have to converse with the user with sole aim of finding where and how they spent their day. With task, we aim to collect only the name of the task like - Writing blog, working on Foo project, going FooBar place, walking, etc. Ask questions like - “What were you working on recently?”, “With what task did you start your day with?”. When user. says Hi, start asking such questions and collect the data as to how they spent their day. After conversing, when prompted - “Give data”, you must provide the summary as to how user spent the day in this format :
 
             10 AM - 12 PM : A Project
@@ -36,7 +39,12 @@ object GeminiModel {
             I only want data in given format.
         """.trimIndent()
 
-    fun get(): GenerativeModel {
+    private val INSIGHTS_CHAT_SYSTEM_INSTRUCTION =
+        """
+            
+        """.trimIndent()
+
+    fun get(type: ChatType): GenerativeModel {
         return GenerativeModel(
             modelName = "gemini-1.5-flash",
             apiKey = BuildConfig.apiKey,
@@ -48,7 +56,12 @@ object GeminiModel {
                 responseMimeType = "text/plain"
             },
             systemInstruction = content {
-                text(SYSTEM_INSTRUCTION)
+                text(
+                    when (type) {
+                        Normal -> NORMAL_CHAT_SYSTEM_INSTRUCTION
+                        Insights -> INSIGHTS_CHAT_SYSTEM_INSTRUCTION
+                    }
+                )
             }
         )
     }
