@@ -3,6 +3,8 @@ package com.streamliners.timify.feature.chat.viewModelExt
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.streamliners.timify.feature.chat.ChatViewModel
 
+const val ENABLE_INSIGHTS_CHAT = false
+
 suspend fun ChatViewModel.insightResponseFor(modelResponse: String): String {
     val parts = modelResponse.replace("```sql\n", "")
         .replace("```\n", "")

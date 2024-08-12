@@ -32,6 +32,7 @@ import com.streamliners.timify.feature.chat.ChatViewModel.Mode.Text
 import com.streamliners.timify.feature.chat.comp.MessagesList
 import com.streamliners.timify.feature.chat.comp.TextInput
 import com.streamliners.timify.feature.chat.comp.VoiceMode
+import com.streamliners.timify.feature.chat.viewModelExt.ENABLE_INSIGHTS_CHAT
 import com.streamliners.timify.feature.voice.SpeechRecognitionButton
 import com.streamliners.timify.ui.main.Screen
 
@@ -78,23 +79,25 @@ fun ChatScreen(
                 .imePadding()
         ) {
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primaryContainer)
-                    .padding(vertical = 8.dp, horizontal = 12.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                RadioGroup(
-                    selection = viewModel.type.value,
-                    onSelectionChange = {
-                        viewModel.type.value = it
-                        viewModel.loadChat()
-                    },
-                    options = ChatViewModel.ChatType.entries.toList(),
-                    labelExtractor = { it.name },
-                    layout = Layout.Row
-                )
+            if (ENABLE_INSIGHTS_CHAT) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .padding(vertical = 8.dp, horizontal = 12.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    RadioGroup(
+                        selection = viewModel.type.value,
+                        onSelectionChange = {
+                            viewModel.type.value = it
+                            viewModel.loadChat()
+                        },
+                        options = ChatViewModel.ChatType.entries.toList(),
+                        labelExtractor = { it.name },
+                        layout = Layout.Row
+                    )
+                }
             }
 
             Column(
