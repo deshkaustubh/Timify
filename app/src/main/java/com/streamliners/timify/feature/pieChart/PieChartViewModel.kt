@@ -13,6 +13,8 @@ import com.streamliners.compose.comp.textInput.state.value
 import com.streamliners.timify.BuildConfig
 import com.streamliners.timify.data.local.dao.TaskInfoDao
 import com.streamliners.timify.ui.theme.listOfColors
+import com.streamliners.utils.DateTimeUtils
+import com.streamliners.utils.DateTimeUtils.Format
 import com.streamliners.utils.DateTimeUtils.Format.Companion.DATE_MONTH_YEAR_1
 import com.streamliners.utils.DateTimeUtils.formatTime
 import ir.mahozad.android.PieChart
@@ -25,7 +27,7 @@ class PieChartViewModel(
 ) : BaseViewModel() {
 
     val currentDate = mutableStateOf(
-        TextInputState("Date", value = formatTime(DATE_MONTH_YEAR_1))
+        TextInputState("Date", value = formatTime(Format("yyyy/MM/dd")))
     )
     val slices = taskStateOf<List<PieChart.Slice>>()
 
