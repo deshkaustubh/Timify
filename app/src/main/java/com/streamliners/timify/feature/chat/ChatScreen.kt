@@ -63,8 +63,10 @@ fun ChatScreen(
             IconButton(
                 onClick = {
                     viewModel.saveTaskInfoToLocal {
+                        viewModel.isNewChatHappened.value = false
                         navController.navigate(Screen.PieChart.route)
                     }
+
                 }
             ) {
                 Icon(imageVector = Icons.Default.Insights, contentDescription = "Insights")

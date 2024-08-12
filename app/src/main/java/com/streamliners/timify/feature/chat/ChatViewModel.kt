@@ -66,6 +66,8 @@ class ChatViewModel(
 
     lateinit var chat: Chat
 
+    var isNewChatHappened = mutableStateOf(true)
+
     private var collectJob: Job? = null
 
     fun loadChat() {
@@ -99,6 +101,8 @@ class ChatViewModel(
     ) {
         execute(false) {
             showLoader()
+
+            isNewChatHappened.value = true
 
             var response = chat.send(prompt)
 
@@ -135,7 +139,7 @@ class ChatViewModel(
     fun saveTaskInfoToLocal(onSuccess: () -> Unit) {
         execute {
             val rowsCount = chatHistoryDao.getTotalRowCount()
-            if (rowsCount == 0) {
+            if (!isNewChatHappened.value || rowsCount == 0) {
                 executeOnMain { onSuccess() }
                 return@execute
             }
@@ -155,7 +159,6 @@ class ChatViewModel(
             lines.forEach { line ->
                 val data = line.split(",")
 
-                // 1arXlKoTRvcy5SOAgqNv2DSbIQBlWi9j9DeitB9XtMl8
                 taskInfoDao.add(
                     TaskInfo(
                         name = data[0],
