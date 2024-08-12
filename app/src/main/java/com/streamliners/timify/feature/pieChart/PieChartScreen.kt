@@ -26,6 +26,7 @@ import com.streamliners.compose.comp.textInput.state.update
 import com.streamliners.pickers.date.DatePickerDialog
 import com.streamliners.pickers.date.ShowDatePicker
 import com.streamliners.timify.BuildConfig
+import com.streamliners.utils.DateTimeUtils
 import com.streamliners.utils.DateTimeUtils.Format.Companion.DATE_MONTH_YEAR_1
 import ir.mahozad.android.PieChart
 
@@ -62,7 +63,7 @@ fun PieChartScreen(
             ) {
                 showDatePicker(
                     DatePickerDialog.Params(
-                        format = DATE_MONTH_YEAR_1,
+                        format = DateTimeUtils.Format("yyyy/MM/dd"),
                         prefill = viewModel.currentDate.nullableValue(),
                         onPicked = { date ->
                             viewModel.currentDate.update(date)

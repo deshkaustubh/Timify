@@ -9,13 +9,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ChatHistoryDao {
 
-    @Query("SELECT * FROM ChatHistory WHERE date = :date")
-    fun getList(date: String): Flow<List<ChatHistoryItem>>
+    @Query("SELECT * FROM ChatHistory WHERE date = :date AND type = :type")
+    fun getList(date: String, type: String): Flow<List<ChatHistoryItem>>
 
     @Insert
     suspend fun add(chatHistoryItem: ChatHistoryItem)
 
-    @Query("SELECT COUNT(*) FROM ChatHistory")
+    @Query("SELECT COUNT(*) FROM ChatHistory WHERE type = 'Normal'")
     suspend fun getTotalRowCount(): Int
 
 }

@@ -11,11 +11,15 @@ import androidx.navigation.compose.rememberNavController
 import com.streamliners.base.BaseActivity
 import com.streamliners.base.uiEvent.UiEventDialogs
 import com.streamliners.timify.BuildConfig
+import com.streamliners.timify.data.local.dao.TaskInfoDao
 import com.streamliners.timify.ui.theme.TimifyTheme
+import org.koin.android.ext.android.inject
 
 class MainActivity : BaseActivity()  {
 
     override var buildType: String = BuildConfig.BUILD_TYPE
+
+    val taskInfoDao by inject<TaskInfoDao>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

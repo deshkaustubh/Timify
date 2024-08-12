@@ -1,8 +1,11 @@
 package com.streamliners.timify.data.local.dao
 
+import android.database.sqlite.SQLiteCursor
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.RawQuery
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.streamliners.timify.domain.model.TaskInfo
 
 @Dao
@@ -28,5 +31,13 @@ interface TaskInfoDao {
 
     @Query("SELECT COUNT(*) FROM TasksInfo")
     suspend fun getTotalRowCount(): Int
+
+    // Raw Queries
+
+    @RawQuery
+    suspend fun rawQueryAsInt(query: SupportSQLiteQuery): Int?
+
+    @RawQuery
+    suspend fun rawQueryAsIntList(query: SupportSQLiteQuery): List<Int>
 
 }

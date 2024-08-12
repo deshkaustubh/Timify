@@ -13,5 +13,6 @@ data class ChatHistoryItem(
     val date: String = formatTime(DATE_MONTH_YEAR_1),
     val time: Long = System.currentTimeMillis(),
     val role: String,
+    val type: String,
     val message: String
 )
