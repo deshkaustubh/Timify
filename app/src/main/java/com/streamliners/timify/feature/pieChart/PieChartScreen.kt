@@ -45,8 +45,9 @@ fun PieChartScreen(
 
     val pieChartConfig = PieChartConfig(
         isAnimationEnable = true,
-        showSliceLabels = false,
-        animationDuration = 1500
+        showSliceLabels = true,
+        animationDuration = 1000,
+        sliceLabelTextSize = 24.sp
     )
 
     TitleBarScaffold(
