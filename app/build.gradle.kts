@@ -125,8 +125,8 @@ dependencies {
     annotationProcessor("androidx.room:room-compiler:$room_version")
     kapt("androidx.room:room-compiler:$room_version")
 
-    // Pie Chart
-    implementation("ir.mahozad.android:pie-chart:0.7.0")
+    // Pie Chart -> YCharts
+    implementation("co.yml:ycharts:2.1.0")
 
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
