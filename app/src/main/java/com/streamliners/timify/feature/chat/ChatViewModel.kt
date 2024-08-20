@@ -26,6 +26,7 @@ import com.streamliners.timify.feature.chat.viewModelExt.toUIItems
 import com.streamliners.timify.feature.genAI.GeminiModel
 import com.streamliners.timify.other.ext.calculateTimeDiffInMins
 import com.streamliners.timify.other.ext.send
+import com.streamliners.utils.DateTimeUtils
 import com.streamliners.utils.DateTimeUtils.Format.Companion.DATE_MONTH_YEAR_1
 import com.streamliners.utils.DateTimeUtils.formatTime
 import kotlinx.coroutines.Job
@@ -62,7 +63,7 @@ class ChatViewModel(
     val mode = mutableStateOf(Mode.Text)
     val data = taskStateOf<Data>()
 
-    private val currentDate = formatTime(DATE_MONTH_YEAR_1)
+    private val currentDate = formatTime(DateTimeUtils.Format("yyyy/MM/dd"))
 
     lateinit var chat: Chat
 

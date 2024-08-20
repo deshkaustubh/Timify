@@ -10,7 +10,7 @@ import com.streamliners.utils.DateTimeUtils.formatTime
 data class ChatHistoryItem(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val date: String = formatTime(DATE_MONTH_YEAR_1),
+    val date: String = formatTime(DateTimeUtils.Format("yyyy/MM/dd")),
     val time: Long = System.currentTimeMillis(),
     val role: String,
     val type: String,
