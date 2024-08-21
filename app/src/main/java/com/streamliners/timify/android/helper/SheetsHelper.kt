@@ -41,8 +41,10 @@ class SheetsHelper(
 
     fun readAllRows(sheetId: String, sheetName: String = "Sheet1"): List<List<String>> {
         val response = sheets.spreadsheets().values()[sheetId, sheetName].execute()
-        return response.getValues() as? List<List<String>>
-            ?: error("Unable to parse rows")
+        return (response.getValues() as? List<List<String>>)
+            ?.filter { fields ->
+               !fields.all { it.isBlank() || it == "-" }
+            } ?: error("Unable to parse rows")
     }
 
     private fun GoogleOAuthTokens.toCredential(): Credential {

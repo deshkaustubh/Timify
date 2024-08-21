@@ -25,8 +25,7 @@ fun List<TaskInfo>.toRows(): List<List<String>> {
 }
 
 fun List<List<String>>.parseAsTaskInfoList(): List<TaskInfo> {
-    return drop(1).mapNotNull { fields ->
-        if (fields.all { it.isBlank() || it == "-" }) null else
+    return drop(1).map { fields ->
         TaskInfo(
             date = fields[0],
             startTime = fields[1],
