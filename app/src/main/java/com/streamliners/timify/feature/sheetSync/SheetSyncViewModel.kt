@@ -13,9 +13,11 @@ import com.streamliners.base.taskState.value
 import com.streamliners.timify.android.helper.GoogleOAuthTokensFetcher
 import com.streamliners.timify.android.helper.SheetsHelper
 import com.streamliners.timify.data.local.LocalRepo
+import com.streamliners.timify.data.local.dao.CustomAttributeDao
 import com.streamliners.timify.data.local.dao.TaskInfoDao
 import com.streamliners.timify.domain.model.SheetSyncState
 import com.streamliners.timify.domain.model.SheetSyncState.Linked
+import com.streamliners.timify.other.ext.parseAsCustomAttributeList
 import com.streamliners.timify.other.ext.parseAsTaskInfoList
 import com.streamliners.timify.other.ext.toRows
 import com.streamliners.timify.other.ext.tokens
@@ -23,7 +25,8 @@ import com.streamliners.timify.other.ext.tokens
 class SheetSyncViewModel(
     private val googleOAuthTokensFetcher: GoogleOAuthTokensFetcher,
     private val localRepo: LocalRepo,
-    private val taskInfoDao: TaskInfoDao
+    private val taskInfoDao: TaskInfoDao,
+    private val customAttributeDao: CustomAttributeDao
 ): BaseViewModel() {
 
     val state = taskStateOf<SheetSyncState>()
@@ -91,7 +94,10 @@ class SheetSyncViewModel(
         execute {
             val rows = sheetsHelper.readAllRows(sheetId())
             taskInfoDao.clear()
+            customAttributeDao.clear()
             taskInfoDao.addAll(rows.parseAsTaskInfoList())
+            val lastId = taskInfoDao.getFirstId()
+            customAttributeDao.addAll(parseAsCustomAttributeList(rows, lastId))
             updateLocalRowsCount()
             showToast("Pulled successfully!")
         }

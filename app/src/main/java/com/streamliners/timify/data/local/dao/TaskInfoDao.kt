@@ -32,6 +32,12 @@ interface TaskInfoDao {
     @Query("SELECT COUNT(*) FROM TasksInfo")
     suspend fun getTotalRowCount(): Int
 
+    @Query("SELECT id FROM TasksInfo ORDER BY id DESC LIMIT 1")
+    fun getLastId(): Int
+
+    @Query("SELECT id FROM TasksInfo ORDER BY id ASC LIMIT 1")
+    fun getFirstId(): Int
+
     // Raw Queries
 
     @RawQuery
