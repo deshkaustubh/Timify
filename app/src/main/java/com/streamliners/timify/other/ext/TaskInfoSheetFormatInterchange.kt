@@ -36,29 +36,22 @@ fun List<List<String>>.parseAsTaskInfoList(): List<TaskInfo> {
         )
     }
 }
-fun parseAsCustomAttributeList(rows: List<List<String>>, lastId: Int): List<CustomAttribute> {
 
-    val listOfKeyName = mutableListOf<String>()
-    rows[0].forEachIndexed { index, string ->
-            if (index > 3) {
-                listOfKeyName.add(string)
-            }
-    }
+fun parseAsCustomAttributeList(rows: List<List<String>>, firstTaskId: Int): List<CustomAttribute> {
 
-    val listOfCustomAttribute = mutableListOf<CustomAttribute>()
+    val keyNames = rows[0].subList(
+        fromIndex = 4,
+        toIndex = rows[0].size
+    )
 
-     rows.drop(1).mapIndexed { index, fields ->
-        for (i in 0 until listOfKeyName.size){
-
-            listOfCustomAttribute.add(
-                CustomAttribute(
-                    taskId = index + lastId,
-                    key = listOfKeyName[i],
-                    value = fields[ 4 + i]
-                )
+    return rows.drop(1).mapIndexed { rowNumber, fields ->
+        keyNames.mapIndexed { i, key ->
+            CustomAttribute(
+                taskId = rowNumber + firstTaskId,
+                key = key,
+                value = fields[4 + i]
             )
         }
 
-    }
-    return listOfCustomAttribute
+    }.flatten()
 }

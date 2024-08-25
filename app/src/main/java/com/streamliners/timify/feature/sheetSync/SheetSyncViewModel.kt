@@ -96,8 +96,8 @@ class SheetSyncViewModel(
             taskInfoDao.clear()
             customAttributeDao.clear()
             taskInfoDao.addAll(rows.parseAsTaskInfoList())
-            val lastId = taskInfoDao.getFirstId()
-            customAttributeDao.addAll(parseAsCustomAttributeList(rows, lastId))
+            val id = taskInfoDao.getFirstId()
+            customAttributeDao.addAll(parseAsCustomAttributeList(rows, id))
             updateLocalRowsCount()
             showToast("Pulled successfully!")
         }
