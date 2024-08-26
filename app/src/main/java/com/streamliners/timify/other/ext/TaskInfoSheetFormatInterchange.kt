@@ -1,5 +1,6 @@
 package com.streamliners.timify.other.ext
 
+import com.streamliners.timify.domain.model.CustomAttribute
 import com.streamliners.timify.domain.model.TaskInfo
 
 fun List<TaskInfo>.toRows(): List<List<String>> {
@@ -25,8 +26,7 @@ fun List<TaskInfo>.toRows(): List<List<String>> {
 }
 
 fun List<List<String>>.parseAsTaskInfoList(): List<TaskInfo> {
-    return drop(1).mapNotNull { fields ->
-        if (fields.all { it.isBlank() || it == "-" }) null else
+    return drop(1).map { fields ->
         TaskInfo(
             date = fields[0],
             startTime = fields[1],
@@ -35,4 +35,23 @@ fun List<List<String>>.parseAsTaskInfoList(): List<TaskInfo> {
             durationInMins = calculateTimeDiffInMins(fields[1], fields[2])
         )
     }
+}
+
+fun parseAsCustomAttributeList(rows: List<List<String>>, firstTaskId: Int): List<CustomAttribute> {
+
+    val keyNames = rows[0].subList(
+        fromIndex = 4,
+        toIndex = rows[0].size
+    )
+
+    return rows.drop(1).mapIndexed { rowNumber, fields ->
+        keyNames.mapIndexed { i, key ->
+            CustomAttribute(
+                taskId = rowNumber + firstTaskId,
+                key = key,
+                value = fields[4 + i]
+            )
+        }
+
+    }.flatten()
 }

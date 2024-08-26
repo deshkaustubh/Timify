@@ -36,12 +36,13 @@ private val appModule = module {
         LocalDB.create(androidApplication())
     }
     single {
-        val db: LocalDB = get()
-        db.chatHistoryDao()
+        get<LocalDB>().chatHistoryDao()
     }
     single {
-        val db: LocalDB = get()
-        db.taskInfoDao()
+        get<LocalDB>().taskInfoDao()
+    }
+    single {
+        get<LocalDB>().customAttributeDao()
     }
     single { TTSHelper(androidApplication()) }
     single { HttpClient(CIO) { expectSuccess = true } }
@@ -53,5 +54,5 @@ private val appModule = module {
 private val viewModelModule = module {
     viewModel { ChatViewModel(get(), get(), get()) }
     viewModel { PieChartViewModel(get()) }
-    viewModel { SheetSyncViewModel(get(), get(), get()) }
+    viewModel { SheetSyncViewModel(get(), get(), get(), get()) }
 }
