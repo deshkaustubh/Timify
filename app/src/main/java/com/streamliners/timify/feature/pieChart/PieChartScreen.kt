@@ -42,14 +42,6 @@ fun PieChartScreen(
         viewModel.start()
     }
 
-
-    val pieChartConfig = PieChartConfig(
-        isAnimationEnable = true,
-        showSliceLabels = true,
-        animationDuration = 1000,
-        sliceLabelTextSize = 24.sp
-    )
-
     TitleBarScaffold(
         title = "Pie Chart",
         navigateUp = {
@@ -84,19 +76,20 @@ fun PieChartScreen(
 
 
             viewModel.slices.whenLoaded { slices ->
-                if(slices.size > 0){
-
-                    val pieChartData = PieChartData(
-                        slices = slices,
-                        plotType = PlotType.Pie
-                    )
-
+                if(slices.isNotEmpty()){
                     PieChart(
                         modifier = Modifier.width(400.dp).height(400.dp),
-                        pieChartData = pieChartData,
-                        pieChartConfig = pieChartConfig
+                        pieChartData = PieChartData(
+                            slices = slices,
+                            plotType = PlotType.Pie
+                        ),
+                        pieChartConfig = PieChartConfig(
+                            isAnimationEnable = true,
+                            showSliceLabels = true,
+                            animationDuration = 1000,
+                            sliceLabelTextSize = 24.sp
+                        )
                     )
-
                 } else {
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -104,12 +97,11 @@ fun PieChartScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "No-Data Found",
+                            text = "No Data Found!",
                             fontSize = 30.sp,
                             fontWeight = FontWeight.Bold)
                     }
                 }
-                
             }
         }
     }
