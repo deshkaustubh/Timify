@@ -62,3 +62,29 @@ val listOfColors = listOf(
     Color(0xFFD69E2E), // Amber
     Color(0xFF9C4221)  // Chestnut
 )
+
+val listOfGreenColorShades = listOf(
+    Color(0xFF22543D), // Hunter Green
+    Color(0xFF276749), // Forest Green
+    Color(0xFF38A169), // Emerald Green
+    Color(0xFF68D391), // Mint Green
+    Color(0xFF285E61), // Blue Green
+    Color(0xFF2F855A), // Pine Green
+    Color(0xFF48BB78), // Lime Green
+    Color(0xFF9AE6B4), // Pale Green
+    Color(0xFF38A169), // Sea Green
+    Color(0xFF319795)  // Aquamarine
+)
+
+val listOfRedColorShades = listOf(
+    Color(0xFF9C4221), // Burnt Orange
+    Color(0xFF822727), // Brick Red
+    Color(0xFF9B2C2C), // Deep Red
+    Color(0xFF742A2A), // Maroon
+    Color(0xFF822727), // Crimson
+    Color(0xFF991B1B), // Dark Red
+    Color(0xFF7F1D1D), // Blood Red
+    Color(0xFFC53030), // Scarlet Red
+    Color(0xFFB91C1C), // Ruby Red
+    Color(0xFFF56565)  // Light Coral
+)

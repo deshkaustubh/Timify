@@ -9,11 +9,9 @@ import com.streamliners.timify.domain.model.CustomAttribute
 @Dao
 interface CustomAttributeDao {
 
-    /*@Query("SELECT * FROM CustomAttribute")
-    suspend fun getList(): List<CustomAttribute>
 
     @Query("SELECT * FROM CustomAttribute")
-    suspend fun getAll(): List<CustomAttribute>*/
+    suspend fun getAll(): List<CustomAttribute>
 
     @Query("DELETE FROM CustomAttribute")
     suspend fun clear()
@@ -23,5 +21,11 @@ interface CustomAttributeDao {
 
     @Insert
     suspend fun addAll(customAttribute: List<CustomAttribute>)
+
+    @Query("SELECT DISTINCT `key` FROM CustomAttribute")
+    fun getDistinctKeys(): List<String>
+
+    @Query("SELECT * FROM CustomAttribute WHERE taskId = :taskId")
+    fun getCustomAttributesByTaskId(taskId: Int): List<CustomAttribute>
 
 }

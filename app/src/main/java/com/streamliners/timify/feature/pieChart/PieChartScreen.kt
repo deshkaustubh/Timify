@@ -11,6 +11,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,6 +33,8 @@ import com.streamliners.pickers.date.ShowDatePicker
 import com.streamliners.utils.DateTimeUtils
 import co.yml.charts.common.model.PlotType
 import com.streamliners.base.taskState.comp.whenLoaded
+import com.streamliners.compose.android.comp.spinner.OutlinedSpinner
+import com.streamliners.compose.comp.textInput.state.TextInputState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,6 +45,10 @@ fun PieChartScreen(
 ) {
     LaunchedEffect(key1 = Unit) {
         viewModel.start()
+    }
+
+    val onStateChanged = remember {
+        mutableStateOf("")
     }
 
 
@@ -82,9 +91,19 @@ fun PieChartScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedSpinner(
+                options = viewModel.listOfSpinner,
+                state = viewModel.state,
+                allowInput = false,
+                onStateChanged = {
+                    viewModel.onDateChanged()
+                }
+            )
 
             viewModel.slices.whenLoaded { slices ->
-                if(slices.size > 0){
+                if(slices.isNotEmpty()){
 
                     val pieChartData = PieChartData(
                         slices = slices,
@@ -92,7 +111,9 @@ fun PieChartScreen(
                     )
 
                     PieChart(
-                        modifier = Modifier.width(400.dp).height(400.dp),
+                        modifier = Modifier
+                            .width(400.dp)
+                            .height(400.dp),
                         pieChartData = pieChartData,
                         pieChartConfig = pieChartConfig
                     )
