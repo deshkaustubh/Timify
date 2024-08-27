@@ -26,6 +26,6 @@ interface CustomAttributeDao {
     fun getDistinctKeys(): List<String>
 
     @Query("SELECT * FROM CustomAttribute WHERE taskId = :taskId")
-    fun getCustomAttributesByTaskId(taskId: Int): List<CustomAttribute>
+    suspend fun getCustomAttributesByTaskId(taskId: Int): List<CustomAttribute>
 
 }

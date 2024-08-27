@@ -38,10 +38,6 @@ class PieChartViewModel(
         TextInputState("Date", value = formatTime(Format("yyyy/MM/dd")))
     )
 
-    val colorState = mutableStateOf(
-        listOfColors.random()
-    )
-
     val state = mutableStateOf(
         TextInputState("Group By")
     )
@@ -71,12 +67,9 @@ class PieChartViewModel(
             // TODO: Color needs to be different instead random
 
             val slicesList = listOfTaskInfo.map { task ->
-
-                getTaskColor(task)
-
                 PieChartData.Slice(
                     value = task.durationInMins / totalMins.toFloat(),
-                    color = colorState.value,
+                    color = getTaskColor(task),
                     label = task.name
                 )
             }
@@ -87,21 +80,17 @@ class PieChartViewModel(
         }
     }
 
-    private fun getTaskColor(task: TaskInfo){
+    private suspend fun getTaskColor(task: TaskInfo): Color {
 
-        runBlocking (Dispatchers.IO) {
             val customAttributes = customAttributeDao.getCustomAttributesByTaskId(taskId = task.id)
-
-            colorState.value = if (state.value.label == "Group By" && state.value().isEmpty() || state.value() == "Task Name") listOfColors.random()
+            return if (state.value.label == "Group By" && state.value().isEmpty() || state.value() == "Task Name") listOfColors.random()
             else {
                 if (isStateKeyExists(customAttributes)) {
                     listOfGreenColorShades.random()
                 } else {
                     listOfRedColorShades.random()
                 }
-
             }
-        }
 
     }
 
