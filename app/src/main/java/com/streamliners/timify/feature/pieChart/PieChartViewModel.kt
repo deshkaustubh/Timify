@@ -1,6 +1,7 @@
 package com.streamliners.timify.feature.pieChart
 
-import androidx.compose.runtime.mutableStateListOf
+import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewModelScope
@@ -22,7 +23,9 @@ import com.streamliners.timify.ui.theme.listOfGreenColorShades
 import com.streamliners.timify.ui.theme.listOfRedColorShades
 import com.streamliners.utils.DateTimeUtils.Format
 import com.streamliners.utils.DateTimeUtils.formatTime
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class PieChartViewModel(
     private val taskInfoDao: TaskInfoDao,
@@ -30,8 +33,6 @@ class PieChartViewModel(
 ) : BaseViewModel() {
 
     val listOfSpinner = mutableListOf<String>()
-
-    val listOfTaskInfoState = mutableStateListOf<TaskInfo>()
 
     val currentDate = mutableStateOf(
         TextInputState("Date", value = formatTime(Format("yyyy/MM/dd")))
@@ -47,7 +48,7 @@ class PieChartViewModel(
     fun start() {
         execute {
             spinnerValue()
-            onRefreshed()
+            onDateChanged()
         }
     }
 
@@ -57,43 +58,15 @@ class PieChartViewModel(
     }
 
 
-    fun onRefreshed() {
+    fun onDateChanged() {
         viewModelScope.launch {
             val listOfTaskInfo = taskInfoDao.getList(currentDate.value()).toMutableList()
 
-            val groupedTaskInfo = listOfTaskInfo
-                .groupBy { it.name }
-                .map { (name, tasks) ->
-                    TaskInfo(
-                        id = tasks.first().id,  // Use the ID of the first task (or another strategy if needed)
-                        date = tasks.first().date,
-                        startTime = tasks.first().startTime,
-                        endTime = tasks.first().endTime,
-                        durationInMins = tasks.sumOf { it.durationInMins },  // Sum the durations
-                        name = name
-                    )
-                }.toMutableList()
-
-            listOfTaskInfoState.clear()
-            listOfTaskInfoState.addAll(groupedTaskInfo)
-
-            val customAttributes = customAttributeDao.getAll()
-
-            val trueFalseMap = customAttributes
-                .filter { it.key == state.value.value}
-                .associate { it.taskId to it.value.toBoolean() }
-
-            groupedTaskInfo.sortWith(compareByDescending<TaskInfo> {
-                trueFalseMap[it.id] ?: false
-            })
-
-            val totalMins = groupedTaskInfo.sumOf { it.durationInMins }
+            val totalMins = listOfTaskInfo.sumOf { it.durationInMins }
 
             // TODO: Color needs to be different instead random
 
-
-            val slicesList = groupedTaskInfo.map { task ->
-
+            val slicesList = listOfTaskInfo.map { task ->
                 PieChartData.Slice(
                     value = task.durationInMins / totalMins.toFloat(),
                     color = getTaskColor(task),
@@ -106,7 +79,6 @@ class PieChartViewModel(
             slices.update(slicesList)
         }
     }
-
 
     private suspend fun getTaskColor(task: TaskInfo): Color {
 
