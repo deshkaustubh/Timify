@@ -93,11 +93,18 @@ class SheetSyncViewModel(
     fun pull() {
         execute {
             val rows = sheetsHelper.readAllRows(sheetId())
+
+            // Clear old data
             taskInfoDao.clear()
             customAttributeDao.clear()
+
+            // Add new Tasks
             taskInfoDao.addAll(rows.parseAsTaskInfoList())
-            val id = taskInfoDao.getFirstId()
-            customAttributeDao.addAll(parseAsCustomAttributeList(rows, id))
+
+            // Get first task id to correctly set CustomAttribute.taskId
+            val firstTaskId = taskInfoDao.getFirstId()
+            customAttributeDao.addAll(parseAsCustomAttributeList(rows, firstTaskId))
+
             updateLocalRowsCount()
             showToast("Pulled successfully!")
         }

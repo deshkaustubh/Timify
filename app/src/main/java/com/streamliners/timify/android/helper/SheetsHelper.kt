@@ -43,7 +43,8 @@ class SheetsHelper(
         val response = sheets.spreadsheets().values()[sheetId, sheetName].execute()
         return (response.getValues() as? List<List<String>>)
             ?.filter { fields ->
-               !fields.all { it.isBlank() || it == "-" }
+                // Ignore separator rows (blank & - containing)
+                !fields.all { it.isBlank() || it == "-" }
             } ?: error("Unable to parse rows")
     }
 
