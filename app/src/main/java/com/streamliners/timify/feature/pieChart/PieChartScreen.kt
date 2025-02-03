@@ -2,21 +2,24 @@ package com.streamliners.timify.feature.pieChart
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,7 +37,6 @@ import com.streamliners.utils.DateTimeUtils
 import co.yml.charts.common.model.PlotType
 import com.streamliners.base.taskState.comp.whenLoaded
 import com.streamliners.compose.android.comp.spinner.OutlinedSpinner
-import com.streamliners.compose.comp.textInput.state.TextInputState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,11 +48,6 @@ fun PieChartScreen(
     LaunchedEffect(key1 = Unit) {
         viewModel.start()
     }
-
-    val onStateChanged = remember {
-        mutableStateOf("")
-    }
-
 
     val pieChartConfig = PieChartConfig(
         isAnimationEnable = true,
@@ -85,7 +82,7 @@ fun PieChartScreen(
                         prefill = viewModel.currentDate.nullableValue(),
                         onPicked = { date ->
                             viewModel.currentDate.update(date)
-                            viewModel.onDateChanged()
+                            viewModel.onRefreshed()
                         }
                     )
                 )
@@ -98,7 +95,7 @@ fun PieChartScreen(
                 state = viewModel.state,
                 allowInput = false,
                 onStateChanged = {
-                    viewModel.onDateChanged()
+                    viewModel.onRefreshed()
                 }
             )
 
@@ -118,6 +115,32 @@ fun PieChartScreen(
                         pieChartConfig = pieChartConfig
                     )
 
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    LazyColumn {
+                        items(viewModel.listOfTaskInfoState){
+                            Card(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(8.dp)
+                                ) {
+                                    Text(text = "Task Name:- ")
+                                    Text(text = it.name)
+                                }
+                                Row(
+                                    modifier = Modifier.padding(8.dp)
+                                ) {
+                                    Text(text = "DurationInMins:- ")
+                                    Text(text = it.durationInMins.toString())
+                                }
+
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+
+
                 } else {
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -132,6 +155,7 @@ fun PieChartScreen(
                 }
                 
             }
+
         }
     }
 }

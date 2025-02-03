@@ -157,7 +157,7 @@ class ChatViewModel(
 
             taskInfoDao.clearAllOf(currentDate)
 
-            lines.forEach { line ->
+            lines.drop(1).forEach { line ->
                 val data = line.split(",")
 
                 taskInfoDao.add(
